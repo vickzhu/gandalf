@@ -36,7 +36,7 @@ public class TokenUtil {
     /**
      * 单个token的长度
      */
-    protected static final int    tokenLength       = 6;
+    protected static final int    tokenLength       = 8;
 
     /**
      * 得到Token的key

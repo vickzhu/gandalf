@@ -103,12 +103,22 @@ public class MD5Util extends BaseCoder {
      * @throws NoSuchAlgorithmException
      */
     public static String md5Hex(File file) throws IOException {
+    	String value = null;
         FileInputStream in = new FileInputStream(file);
-        MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-        MessageDigest md5 = getMd5Digest();
-        md5.update(byteBuffer);
-        BigInteger bigInt = new BigInteger(1, md5.digest());
-        return bigInt.toString(16);
+        try {
+        	 MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+             MessageDigest md5 = getMd5Digest();
+             md5.update(byteBuffer);
+             BigInteger bigInt = new BigInteger(1, md5.digest());
+             value= bigInt.toString(16);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
+		} finally {
+			if(in != null){
+				in.close();
+			}
+		}
+        return value;
     }
 
 }
