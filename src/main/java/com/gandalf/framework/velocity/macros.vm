@@ -1,0 +1,3 @@
+#macro(springMessageHtml $code, $args, $defaultValue)
+    #SLITERAL($springMacroRequestContext.getMessage($code, $args, $defaultValue, false))
+#end

@@ -1,0 +1,171 @@
+package com.gandalf.framework.net;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gandalf.framework.constant.CharsetConstant;
+
+/**
+ * 类HttpTool.java的实现描述：http连接类
+ * 
+ * @author gandalf 2013-6-5 上午10:01:23
+ */
+public class HttpTool {
+
+    private static Charset      DEFAULT_CHARSET = Charset.forName(CharsetConstant.UTF_8);
+    private static final Logger logger          = LoggerFactory.getLogger(HttpTool.class);
+
+    /**
+     * http get 方法,默认utf-8编码
+     * 
+     * @param url 链接url
+     */
+    public static String get(String url) {
+        return get(url, DEFAULT_CHARSET);
+    }
+
+    /**
+     * http get 方法
+     * 
+     * @param url
+     * @param charset
+     * @return 请求结果
+     */
+    public static String get(String url, Charset charset) {
+        HttpClient httpClient = HttpClientFactory.getHttpClient();
+        HttpGet get = new HttpGet(url);
+        try {
+            HttpResponse response = httpClient.execute(get);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                return EntityUtils.toString(response.getEntity(), charset);
+            } else {
+                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Access [" + url + "] failure!", e);
+        } catch (IOException e) {// 网络异常
+            logger.error("Access [" + url + "] failure!", e);
+        } finally {
+            get.releaseConnection();
+        }
+        return null;
+    }
+
+    /**
+     * http post 方法
+     * 
+     * @param url 链接url
+     * @param paramMap 参数map
+     */
+    public static String post(String url, Map<String, String> paramMap) {
+        return post(url, paramMap, DEFAULT_CHARSET);
+    }
+
+    /**
+     * http post 方法
+     * 
+     * @param url 链接url
+     * @param paramMap 参数map
+     * @param charset 字符编码
+     */
+    public static String post(String url, Map<String, String> paramMap, Charset charset) {
+        HttpClient httpClient = HttpClientFactory.getHttpClient();
+        HttpPost post = new HttpPost(url);
+        if (paramMap != null) {
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+                params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
+            post.setEntity(new UrlEncodedFormEntity(params, charset));
+        }
+        try {
+            HttpResponse response = httpClient.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                return EntityUtils.toString(response.getEntity(), charset);
+            } else {
+                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Access [" + url + "] failure!", e);
+        } catch (IOException e) {// 网络异常
+            logger.error("Access [" + url + "] failure!", e);
+        } finally {
+            post.releaseConnection();
+        }
+        return null;
+    }
+
+    /**
+     * 上传文件
+     * 
+     * @param url
+     * @param paramMap
+     * @param fileMap
+     * @param charset
+     * @return
+     */
+    public static String postFile(String url, Map<String, String> paramMap, Map<String, FileBody> fileMap,
+                                  Charset charset) {
+        HttpClient httpClient = HttpClientFactory.getHttpClient();
+        HttpPost post = new HttpPost(url);
+        MultipartEntity entity = new MultipartEntity();
+        if (fileMap != null) {
+            for (Map.Entry<String, FileBody> entry : fileMap.entrySet()) {
+                entity.addPart(entry.getKey(), entry.getValue());
+            }
+        }
+        if (paramMap != null) {
+            try {
+                for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+                    String name = URLEncoder.encode(entry.getKey(), charset.name());
+                    String value = entry.getValue();
+                    entity.addPart(name, new StringBody(value, charset));
+                }
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Encode params failure!", e);
+                return null;
+            }
+        }
+        post.setEntity(entity);
+        try {
+            HttpResponse response = httpClient.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                return EntityUtils.toString(response.getEntity(), charset);
+            } else {
+                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Access [" + url + "] failure!", e);
+        } catch (IOException e) {// 网络异常
+            logger.error("Access [" + url + "] failure!", e);
+        } finally {
+            post.releaseConnection();
+        }
+        return null;
+    }
+
+}
