@@ -30,6 +30,7 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
     
     private static final String AJAX_HEADER = "x-requested-with";
     private static final String AJAX_HEADER_VALUE = "XMLHttpRequest";
+    private static final String ONCE_REQUEST_KEY = "_once_request";//一次请求
     
     /**
      * 在重复提交的情况下跳转的路径
@@ -46,7 +47,11 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
     	if (AJAX_HEADER_VALUE.equalsIgnoreCase(request.getHeader(AJAX_HEADER))) {//ajax不错检测
         	return true;     	
 		}
-    	
+    	if(request.getAttribute(ONCE_REQUEST_KEY) != null){
+        	return true;
+        } else {
+        	request.setAttribute(ONCE_REQUEST_KEY, true);        	
+        }
         String method = request.getMethod();
         if (csrfSafeMethod(method)) {
             return true;
@@ -74,6 +79,14 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
         }
         return true;
     }
+    
+    @Override
+	public void afterCompletion(HttpServletRequest request,
+			HttpServletResponse response, Object handler, Exception ex)
+			throws Exception {
+		request.removeAttribute(ONCE_REQUEST_KEY);
+		super.afterCompletion(request, response, handler, ex);
+	}
 
     /**
      * 是否为CSRF安全的方法，包括GET,HEAD,OPTIONS,TRACE
