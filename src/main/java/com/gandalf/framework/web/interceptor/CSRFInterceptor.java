@@ -44,7 +44,7 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     	
-    	if (AJAX_HEADER_VALUE.equalsIgnoreCase(request.getHeader(AJAX_HEADER))) {//ajax不错检测
+    	if (AJAX_HEADER_VALUE.equalsIgnoreCase(request.getHeader(AJAX_HEADER))) {//ajax不做检测
         	return true;     	
 		}
     	if(request.getAttribute(ONCE_REQUEST_KEY) != null){
