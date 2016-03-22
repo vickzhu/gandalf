@@ -12,7 +12,7 @@ import com.gandalf.framework.velocity.directive.SliteralDirective;
 import com.gandalf.framework.velocity.directive.SxmlDirective;
 
 /**
- * 类GandalfVelocityConfigurer.java的实现描述：velocity配置类
+ * 类GandalfVelocityConfigurer.java的实现描述：velocity配置类，扩展了用户指令及自定义macros
  * 
  * @author gandalf 2015-1-13 下午10:45:29
  */
