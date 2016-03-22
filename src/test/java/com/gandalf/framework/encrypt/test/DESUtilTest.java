@@ -1,14 +1,13 @@
 package com.gandalf.framework.encrypt.test;
 
 import com.gandalf.framework.encrypt.DESUtil;
-import com.gandalf.framework.test.BaseTest;
 
 /**
  * 类DESUtil.java的实现描述：DES加密
  * 
  * @author gandalf 2014-3-17 上午11:18:00
  */
-public class DESUtilTest extends BaseTest {
+public class DESUtilTest {
 
     public static void main(String[] args) throws Exception {
         String key = "E60047BDB94A46C6900BC3EB";

@@ -6,14 +6,13 @@ import org.apache.commons.codec.binary.Base64;
 
 import com.gandalf.framework.constant.CharsetConstant;
 import com.gandalf.framework.encrypt.RSAUtil;
-import com.gandalf.framework.test.BaseTest;
 
 /**
  * 类RSAUtil.java的实现描述：RSA加密
  * 
  * @author gandalf 2014-2-21 下午2:22:21
  */
-public class RSAUtilTest extends BaseTest {
+public class RSAUtilTest {
 
     public static void main(String[] args) throws Exception {
         Map<String, Object> keyMap = RSAUtil.initKey();

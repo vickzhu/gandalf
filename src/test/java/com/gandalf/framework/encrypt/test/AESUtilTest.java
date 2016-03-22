@@ -1,14 +1,13 @@
 package com.gandalf.framework.encrypt.test;
 
 import com.gandalf.framework.encrypt.AESUtil;
-import com.gandalf.framework.test.BaseTest;
 
 /**
  * 类AESUtil.java的实现描述：aes算法
  * 
  * @author gandalf 2014-4-21 下午2:50:31
  */
-public class AESUtilTest extends BaseTest {
+public class AESUtilTest {
 
     public static void main(String[] args) throws Exception {
         String key = "11111111";
