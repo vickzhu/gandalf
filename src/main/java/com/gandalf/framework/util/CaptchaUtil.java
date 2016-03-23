@@ -37,7 +37,7 @@ public class CaptchaUtil {
      * @param verifySize 验证码长度
      * @return
      */
-    private static String generateVerifyCode(int verifySize) {
+    public static String generateVerifyCode(int verifySize) {
         return generateVerifyCode(verifySize, VERIFY_CODES);
     }
 
@@ -74,22 +74,6 @@ public class CaptchaUtil {
     public static String outputVerifyImage(int w, int h, File outputFile, int verifySize) throws IOException {
         String verifyCode = generateVerifyCode(verifySize);
         outputImage(w, h, outputFile, verifyCode);
-        return verifyCode;
-    }
-
-    /**
-     * 输出随机验证码图片流,并返回验证码值
-     * 
-     * @param w
-     * @param h
-     * @param os
-     * @param verifySize
-     * @return
-     * @throws IOException
-     */
-    public static String outputVerifyImage(int w, int h, OutputStream os, int verifySize) throws IOException {
-        String verifyCode = generateVerifyCode(verifySize);
-        outputImage(w, h, os, verifyCode);
         return verifyCode;
     }
 
