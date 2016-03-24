@@ -1,6 +1,5 @@
 package com.gandalf.framework.velocity;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -87,9 +86,4 @@ public class EscapeHtmlHandler implements ReferenceInsertionEventHandler, Runtim
         return rs;
     }
 
-    public static void main(String[] args) {
-        Matcher matcher = Pattern.compile("\\$\\{?screen_content\\}?|\\$\\!?\\{?tokenUtil\\S*\\}?").matcher("$tokenUtil");
-        System.out.println(matcher.matches());
-
-    }
 }
