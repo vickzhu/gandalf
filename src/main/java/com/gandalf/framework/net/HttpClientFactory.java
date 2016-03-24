@@ -37,6 +37,10 @@ public class HttpClientFactory {
     public static HttpClient getHttpClient() {
         return HttpClientHolder.httpClient;
     }
+    
+    public static DefaultHttpClient getDefaultHttpClient(){
+    	return HttpClientHolder.httpClient;
+    }
 
     /**
      * 类HttpClientFactory.java的实现描述：请求重试

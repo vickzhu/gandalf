@@ -27,9 +27,7 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
     private Pattern     pattern    = Pattern.compile("GET|HEAD|OPTIONS|TRACE");
     private PathMatcher uriMatcher = new AntPathMatcher();
     private String      expireTip  = "您访问的地址已过期!";
-    
-    private static final String AJAX_HEADER = "x-requested-with";
-    private static final String AJAX_HEADER_VALUE = "XMLHttpRequest";
+
     private static final String ONCE_REQUEST_KEY = "_once_request";//一次请求
     
     /**
@@ -43,10 +41,6 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-    	
-    	if (AJAX_HEADER_VALUE.equalsIgnoreCase(request.getHeader(AJAX_HEADER))) {//ajax不做检测
-        	return true;     	
-		}
     	if(request.getAttribute(ONCE_REQUEST_KEY) != null){
         	return true;
         } else {

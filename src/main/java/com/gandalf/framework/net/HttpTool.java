@@ -12,6 +12,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -19,6 +20,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie2;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -53,8 +56,34 @@ public class HttpTool {
      * @return 请求结果
      */
     public static String get(String url, Charset charset) {
-        HttpClient httpClient = HttpClientFactory.getHttpClient();
+        return get(url, null, charset);
+    }
+    
+    /**
+     * http get 方法
+     * @param url	请求连接
+     * @param headerMap	请求头
+     * @param charset	字符编码
+     * @return
+     */
+    public static String get(String url, Map<String, String> headerMap, Charset charset) {
+        return get(url, headerMap, null, charset);
+    }
+    
+    public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap, Charset charset) {
+    	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	if(cookieMap != null){
+    		CookieStore cookieStore = httpClient.getCookieStore();
+    		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
+    			cookieStore.addCookie(new BasicClientCookie2(entry.getKey(), entry.getValue()));
+    		}
+    	}
         HttpGet get = new HttpGet(url);
+        if(headerMap != null) {
+        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+        		get.addHeader(entry.getKey(), entry.getValue());
+        	}
+        }
         try {
             HttpResponse response = httpClient.execute(get);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -76,7 +105,7 @@ public class HttpTool {
     /**
      * http post 方法
      * 
-     * @param url 链接url
+     * @param url 请求url
      * @param paramMap 参数map
      */
     public static String post(String url, Map<String, String> paramMap) {
@@ -91,8 +120,43 @@ public class HttpTool {
      * @param charset 字符编码
      */
     public static String post(String url, Map<String, String> paramMap, Charset charset) {
-        HttpClient httpClient = HttpClientFactory.getHttpClient();
+        return post(url, null, paramMap, charset);
+    }
+    
+    /**
+     * http post 方法
+     * @param url	请求url
+     * @param headerMap	请求头
+     * @param paramMap	请求参数
+     * @param charset	字符编码
+     * @return
+     */
+    public static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Charset charset){
+        return post(url, headerMap, paramMap, null, charset);
+    }
+    
+    /**
+     * http post 方法
+     * @param url	请求url
+     * @param headerMap	请求头
+     * @param paramMap	请求参数
+     * @param charset	字符编码
+     * @return
+     */
+    public static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, Charset charset){
+    	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	if(cookieMap != null){
+    		CookieStore cookieStore = httpClient.getCookieStore();
+    		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
+    			cookieStore.addCookie(new BasicClientCookie2(entry.getKey(), entry.getValue()));
+    		}
+    	}
         HttpPost post = new HttpPost(url);
+        if(headerMap != null) {
+        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+        		post.addHeader(entry.getKey(), entry.getValue());
+        	}
+        }
         if (paramMap != null) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             for (Map.Entry<String, String> entry : paramMap.entrySet()) {

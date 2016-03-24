@@ -31,4 +31,16 @@ public class HttpToolTest {
         String result = HttpTool.postFile(url, null, fileMap, Charset.forName(CharsetConstant.UTF_8));
         System.out.println(result);
     }
+    
+    /**
+     * 异步POST
+     */
+    public static void asyncPost(){
+    	String url = "http://localhost:8080/pentagon/login";
+		Map<String, String> headerMap = new HashMap<String, String>();
+		headerMap.put("X-Requested-With", "XMLHttpRequest");
+		Map<String, String> paramMap = new HashMap<String, String>();
+		String result = HttpTool.post(url, headerMap, paramMap, Charset.forName("utf-8"));
+		System.out.println(result);		
+    }
 }
