@@ -20,4 +20,13 @@ public class TokenTool extends AbstractTool {
         String token = TokenUtil.getToken(request, response);
         return new InputRender("hidden", TokenUtil.getTokenKey(), token);
     }
+    
+    public String getTokenKey(){
+    	return TokenUtil.getTokenKey();
+    }
+    
+    public String getToken(){
+    	return TokenUtil.getToken(request, response);
+    }
+    
 }
