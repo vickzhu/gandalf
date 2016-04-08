@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.runtime.Renderable;
 import org.apache.velocity.tools.Scope;
@@ -21,10 +20,7 @@ import com.gandalf.framework.velocity.render.SystemInfoRender;
  */
 @DefaultKey("hostTool")
 @ValidScope(Scope.REQUEST)
-public class HostTool {
-
-    protected HttpServletRequest  request;
-    protected HttpServletResponse response;
+public class HostTool extends AbstractTool {
 
     /**
      * 上下文
@@ -85,29 +81,5 @@ public class HostTool {
         }
         // 把字符串所有小写字母改为大写成为正规的mac地址并返回
         return new SystemInfoRender(sb.toString().toUpperCase());
-    }
-
-    // --------------------------------------- Setup Methods -------------
-
-    /**
-     * Sets the current {@link HttpServletRequest}. This is required for this tool to operate and will throw a
-     * NullPointerException if this is not set or is set to {@code null}.
-     */
-    public void setRequest(HttpServletRequest request) {
-        if (request == null) {
-            throw new NullPointerException("request should not be null");
-        }
-        this.request = request;
-    }
-
-    /**
-     * Sets the current {@link HttpServletResponse}. This is required for this tool to operate and will throw a
-     * NullPointerException if this is not set or is set to {@code null}.
-     */
-    public void setResponse(HttpServletResponse response) {
-        if (response == null) {
-            throw new NullPointerException("response should not be null");
-        }
-        this.response = response;
     }
 }

@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-public interface BaseService<M,E> {
-	
-	int countByExample(E example);
+public interface BaseService<M, E> {
+
+    int countByExample(E example);
 
     int deleteByExample(E example);
 
@@ -17,9 +17,9 @@ public interface BaseService<M,E> {
     int insertSelective(M record);
 
     List<M> selectByExample(E example);
-    
+
     List<M> selectByExampleWithBLOBs(E example);
-    
+
     M selectByPrimaryKey(Long primaryKey);
 
     int updateByExampleSelective(@Param("record") M record, @Param("example") E example);
@@ -29,6 +29,8 @@ public interface BaseService<M,E> {
     int updateByPrimaryKeySelective(M record);
 
     int updateByPrimaryKey(M record);
-    
-    
+
+    int updateByPrimaryKeyWithBLOBs(M record);
+
+    int updateByExampleWithBLOBs(@Param("record") M record, @Param("example") E example);
 }
