@@ -12,7 +12,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -21,13 +20,14 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.cookie.BasicClientCookie2;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gandalf.framework.constant.CharsetConstant;
+import com.gandalf.framework.constant.SymbolConstant;
 
 /**
  * 类HttpTool.java的实现描述：http连接类
@@ -72,13 +72,11 @@ public class HttpTool {
     
     public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap, Charset charset) {
     	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpGet get = new HttpGet(url);
     	if(cookieMap != null){
-    		CookieStore cookieStore = httpClient.getCookieStore();
-    		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
-    			cookieStore.addCookie(new BasicClientCookie2(entry.getKey(), entry.getValue()));
-    		}
+    		String cookieStr = toCookieStr(cookieMap);
+    		get.setHeader(new BasicHeader("Cookie", cookieStr));
     	}
-        HttpGet get = new HttpGet(url);
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
         		get.addHeader(entry.getKey(), entry.getValue());
@@ -90,7 +88,7 @@ public class HttpTool {
             if (statusCode == HttpStatus.SC_OK) {
                 return EntityUtils.toString(response.getEntity(), charset);
             } else {
-                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
             }
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
@@ -145,13 +143,11 @@ public class HttpTool {
      */
     public static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, Charset charset){
     	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpPost post = new HttpPost(url);
     	if(cookieMap != null){
-    		CookieStore cookieStore = httpClient.getCookieStore();
-    		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
-    			cookieStore.addCookie(new BasicClientCookie2(entry.getKey(), entry.getValue()));
-    		}
+    		String cookieStr = toCookieStr(cookieMap);
+    		post.setHeader(new BasicHeader("Cookie", cookieStr));
     	}
-        HttpPost post = new HttpPost(url);
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
         		post.addHeader(entry.getKey(), entry.getValue());
@@ -230,6 +226,22 @@ public class HttpTool {
             post.releaseConnection();
         }
         return null;
+    }
+    
+    /**
+     * 将Map形式的cookie转换为字符串
+     * @param cookieMap
+     * @return
+     */
+    private static String toCookieStr(Map<String,String> cookieMap){
+    	StringBuffer sb = new StringBuffer();
+		for (Map.Entry<String, String> entry : cookieMap.entrySet()) {
+			sb.append(entry.getKey());
+			sb.append(SymbolConstant.EQUALS);
+			sb.append(entry.getValue());
+			sb.append(SymbolConstant.COMMA);
+		}
+		return sb.toString();
     }
 
 }
