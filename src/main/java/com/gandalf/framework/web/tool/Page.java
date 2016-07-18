@@ -8,14 +8,14 @@ import java.util.List;
  *
  * @param <E>
  */
-public class Page<E> {
+public class Page<M> {
 	
-	private int curPage = 0;
+	private int curPage = 1;
 	private int pageSize = 10;
 	private int totalPages = 0;
 	private int totalCounts = 0;
 	private int offset = 0;
-	private List<E> records;
+	private List<M> records;
 	
 	public Page(){
 		setOffset();
@@ -65,11 +65,11 @@ public class Page<E> {
 		this.offset = (curPage-1) * pageSize;
 	}
 
-	public List<E> getRecords() {
+	public List<M> getRecords() {
 		return records;
 	}
 
-	public void setRecords(List<E> records) {
+	public void setRecords(List<M> records) {
 		this.records = records;
 	}
 	
