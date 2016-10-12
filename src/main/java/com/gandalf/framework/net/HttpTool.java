@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -22,7 +23,6 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +86,8 @@ public class HttpTool {
             HttpResponse response = httpClient.execute(get);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
-                return EntityUtils.toString(response.getEntity(), charset);
+            	boolean gzip = isGzip(response);
+            	return EntityUtils.toString(response.getEntity(), charset, gzip);
             } else {
             	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
             }
@@ -99,6 +100,19 @@ public class HttpTool {
         }
         return null;
     }
+    
+    private static final String CONTENTENCODING = "Content-Encoding";
+    private static final String GZIP = "gzip";
+    
+    private static boolean isGzip(HttpResponse response){
+    	Header[] headerArr = response.getHeaders(CONTENTENCODING);
+    	for (Header header : headerArr) {
+    		if(header.getName().equals(CONTENTENCODING) && header.getValue().toLowerCase().indexOf(GZIP) > -1){
+    			return true;
+    		}
+	   }
+	   return false;
+   }
 
     /**
      * http post 方法
