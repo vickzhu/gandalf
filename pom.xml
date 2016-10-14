@@ -219,7 +219,7 @@
 		<repository>
 			<id>public</id>
 			<name>Nexus</name>
-			<url>http://192.168.2.125:8081/nexus/content/groups/public/</url>
+			<url>http://192.168.1.125:8081/nexus/content/groups/public/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
@@ -231,7 +231,7 @@
  	<pluginRepositories>
 		<pluginRepository>
 			<id>nexus</id>
-            <url>http://192.168.2.125:8081/nexus/content/groups/public/</url>
+            <url>http://192.168.1.125:8081/nexus/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
