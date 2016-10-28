@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,11 +78,14 @@ public class HttpTool {
     		String cookieStr = toCookieStr(cookieMap);
     		get.setHeader(new BasicHeader("Cookie", cookieStr));
     	}
-        if(headerMap != null) {
-        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
-        		get.addHeader(entry.getKey(), entry.getValue());
-        	}
-        }
+    	if(headerMap == null){
+    		headerMap = new HashMap<String, String>();
+    	}
+    	headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch");
+    	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+    		get.addHeader(entry.getKey(), entry.getValue());
+    	}
         try {
             HttpResponse response = httpClient.execute(get);
             int statusCode = response.getStatusLine().getStatusCode();
