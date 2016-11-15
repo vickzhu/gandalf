@@ -137,7 +137,7 @@ public final class EntityUtils {
             } catch (final UnsupportedCharsetException ex) {
                 throw new UnsupportedEncodingException(ex.getMessage());
             }
-            if (charset == null) {
+            if (charset == null || defaultCharset != null) {
                 charset = defaultCharset;
             }
             if (charset == null) {
