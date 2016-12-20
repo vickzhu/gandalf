@@ -11,6 +11,7 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.gandalf.framework.util.StringUtil;
+import com.gandalf.framework.web.tool.RequestUtil;
 import com.gandalf.framework.web.tool.TokenUtil;
 
 /**
@@ -63,13 +64,30 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
                 }
             }
         }
-        if (!TokenUtil.checkToken(request, response)) {
-            if (StringUtil.isBlank(redirectURI)) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, expireTip);
-            } else {
-                response.sendRedirect(redirectURI);
+        if(RequestUtil.isAjaxRequest(request)){//如果为异步请求
+        	String token = request.getHeader(TokenUtil.HEADER_KEY);
+        	if(StringUtil.isBlank(token)){//此处兼容采用隐藏字段提交的方式$!{tokenTool.hiddenField}
+        		token = request.getParameter(TokenUtil.TOKEN_KEY);
+        	}
+        	if(StringUtil.isBlank(token)){
+        		response.setStatus(403);
+        		return false;
+        	}
+    		if(!TokenUtil.checkToken(token, request, response)){
+    			response.setStatus(403);
+    			return false;
+    		}
+    		return true;
+        	
+        } else {
+        	if (!TokenUtil.checkToken(request, response)) {
+                if (StringUtil.isBlank(redirectURI)) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, expireTip);
+                } else {
+                    response.sendRedirect(redirectURI);
+                }
+                return false;
             }
-            return false;
         }
         return true;
     }
@@ -79,6 +97,12 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
 		request.removeAttribute(ONCE_REQUEST_KEY);
+		if(RequestUtil.isAjaxRequest(request)){
+			String method = request.getMethod();
+	        if (!csrfSafeMethod(method)) {
+	        	TokenUtil.setTokenInCookie(request, response);
+	        }
+		}
 		super.afterCompletion(request, response, handler, ex);
 	}
 

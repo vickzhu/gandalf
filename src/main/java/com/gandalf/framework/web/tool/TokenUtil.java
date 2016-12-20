@@ -3,6 +3,7 @@ package com.gandalf.framework.web.tool;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,7 +21,7 @@ public class TokenUtil {
     /**
      * Token的key
      */
-    protected static final String TOKEN_KEY         = "gandalftoken";
+    public static final String TOKEN_KEY         = "gandalftoken";
     /**
      * Token在session中存在的key
      */
@@ -37,6 +38,10 @@ public class TokenUtil {
      * 单个token的长度
      */
     protected static final int    tokenLength       = 8;
+    
+    public static String COOKIE_KEY = "_c_t";
+    
+    public static String HEADER_KEY = "X-CSRFToken";
 
     /**
      * 得到Token的key
@@ -57,6 +62,13 @@ public class TokenUtil {
         setTokenInStore(request, response, token);
         return token;
     }
+    
+    public static void setTokenInCookie(HttpServletRequest request, HttpServletResponse response){
+    	String token = getToken(request, response);
+    	Cookie cookie = new Cookie(COOKIE_KEY, token);
+        cookie.setPath(SymbolConstant.SLASH);
+        CookieUtil.addCookie(response, cookie);
+    }
 
     /**
      * 检查request和session中的Token是否一致
@@ -66,14 +78,25 @@ public class TokenUtil {
      */
     public static boolean checkToken(HttpServletRequest request, HttpServletResponse response) {
         String tokenFromRequest = request.getParameter(TOKEN_KEY);
-        if (StringUtil.isBlank(tokenFromRequest)) {// request必须存在token
+        return checkToken(tokenFromRequest, request, response);
+    }
+    
+    /**
+     * 检查token和session中的是否一致
+     * @param tokenFromRequest
+     * @param request
+     * @param response
+     * @return
+     */
+    public static boolean checkToken(String token, HttpServletRequest request, HttpServletResponse response){
+    	if (StringUtil.isBlank(token)) {// request必须存在token
             return false;
         }
         List<String> tokensInSession = getTokensInStore(request, response);
-        if (!tokensInSession.contains(tokenFromRequest)) {
+        if (!tokensInSession.contains(token)) {
             return false;
         } else {
-            tokensInSession.remove(tokenFromRequest);
+            tokensInSession.remove(token);
             setTokensInStore(request, response, tokensInSession);
             return true;
         }
@@ -130,6 +153,7 @@ public class TokenUtil {
      * @param args
      * @return
      */
+    @SuppressWarnings("unchecked")
     private static <T, V extends T> LinkedList<T> createLinkedList(V... args) {
         LinkedList<T> list = new LinkedList<T>();
         if (args != null) {

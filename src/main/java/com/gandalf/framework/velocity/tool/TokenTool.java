@@ -29,4 +29,11 @@ public class TokenTool extends AbstractTool {
     	return TokenUtil.getToken(request, response);
     }
     
+    /**
+     * 启用异步token
+     */
+    public void enableAjaxToken(){
+    	TokenUtil.setTokenInCookie(request, response);
+    }
+    
 }
