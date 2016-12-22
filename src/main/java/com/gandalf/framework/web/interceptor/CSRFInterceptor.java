@@ -77,6 +77,7 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
     			response.setStatus(403);
     			return false;
     		}
+    		TokenUtil.setTokenInCookie(request, response);
     		return true;
         	
         } else {
@@ -97,12 +98,6 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
 		request.removeAttribute(ONCE_REQUEST_KEY);
-		if(RequestUtil.isAjaxRequest(request)){
-			String method = request.getMethod();
-	        if (!csrfSafeMethod(method)) {
-	        	TokenUtil.setTokenInCookie(request, response);
-	        }
-		}
 		super.afterCompletion(request, response, handler, ex);
 	}
 
