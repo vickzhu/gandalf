@@ -1,8 +1,13 @@
 package com.gandalf.framework.net;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -23,6 +28,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 类HttpClientFactory.java的实现描述：HttpClient工厂
@@ -30,6 +37,8 @@ import org.apache.http.protocol.HttpContext;
  * @author gandalf 2013-6-5 上午11:11:48
  */
 public class HttpClientFactory {
+	
+	private static final Logger logger  = LoggerFactory.getLogger(HttpClientFactory.class);
 
     private HttpClientFactory() {
     }
@@ -45,7 +54,7 @@ public class HttpClientFactory {
     /**
      * 类HttpClientFactory.java的实现描述：请求重试
      * 
-     * @author Administrator 2013-6-5 下午4:50:35
+     * @author gandalf 2013-6-5 下午4:50:35
      */
     private static class RetryHandler implements HttpRequestRetryHandler {
 
@@ -110,7 +119,23 @@ public class HttpClientFactory {
         static {
             SchemeRegistry schemeRegistry = new SchemeRegistry();
             schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-            schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
+            try {
+            	SSLContext ctx = SSLContext.getInstance("TLS");
+                X509TrustManager tm = new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+                    public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+                };
+                ctx.init(null, new TrustManager[] { tm }, null);
+                SSLSocketFactory ssf = new SSLSocketFactory(ctx, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                schemeRegistry.register(new Scheme("https", 443, ssf));
+			} catch (Exception e) {
+				logger.error("Error when init SSLContext!", e);
+			}
+            
+//            schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
             pcm = new PoolingClientConnectionManager(schemeRegistry);
             pcm.setDefaultMaxPerRoute(MAX_ROUTE_CONNECTIONS);
             pcm.setMaxTotal(MAX_TOTAL_CONNECTIONS);
