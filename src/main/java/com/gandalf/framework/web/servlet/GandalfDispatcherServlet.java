@@ -21,7 +21,7 @@ import com.gandalf.framework.web.session.SessionConfig;
  */
 public class GandalfDispatcherServlet extends DispatcherServlet {
 
-    private static final String GANDALF_REQUEST_CONTEXT = "_gandalf_request_context_";
+    private static final String GANDALF_REQUEST_CONTEXT = "_g_r_c_";
 
     /**
      * 
