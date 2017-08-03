@@ -12,6 +12,15 @@ public class KeyValue<K,V> {
 	private K key;
 	private V value;
 	
+	public KeyValue(){
+		
+	}
+	
+	public KeyValue(K k,V v){
+		this.key = k;
+		this.value = v;
+	}
+	
 	public K getKey() {
 		return key;
 	}
