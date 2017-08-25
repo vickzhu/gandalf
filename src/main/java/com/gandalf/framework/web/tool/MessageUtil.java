@@ -11,7 +11,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
- * 类MessageUtil.java的实现描述：消息
+ * 类MessageUtil.java的实现描述：国际化信息获取
  * 
  * @author gandalf 2014-7-28 下午04:43:36
  */
