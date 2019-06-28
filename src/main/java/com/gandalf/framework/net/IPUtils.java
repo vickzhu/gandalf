@@ -1,6 +1,9 @@
 package com.gandalf.framework.net;
 
+import java.math.BigInteger;
+
 import com.gandalf.framework.constant.SymbolConstant;
+import com.gandalf.framework.util.StringUtil;
 
 /**
  * 判断国内IP
@@ -34,4 +37,59 @@ public class IPUtils {
 		return sb.toString();
 	}
 	
+	public static BigInteger ipv6toBigInt(String ipv6){
+ 
+		int compressIndex = ipv6.indexOf("::");
+		if (compressIndex != -1){
+			String part1s = ipv6.substring(0, compressIndex);
+			String part2s = ipv6.substring(compressIndex + 1);
+			BigInteger part1 = ipv6toBigInt(part1s);
+			BigInteger part2 = ipv6toBigInt(part2s);
+			int part1hasDot = 0;
+			char ch[] = part1s.toCharArray();
+			for (char c : ch){
+				if (c == ':'){
+					part1hasDot++;
+				}
+			}
+			// ipv6 has most 7 dot
+			return part1.shiftLeft(16 * (7 - part1hasDot )).add(part2);
+		}
+		String[] str = ipv6.split(SymbolConstant.COLON);
+		BigInteger big = BigInteger.ZERO;
+		for (int i = 0; i < str.length; i++){
+			//::1
+			if (str[i].isEmpty()){
+				str[i] = "0";
+			}
+			big = big.add(BigInteger.valueOf(Long.valueOf(str[i], 16)).shiftLeft(16 * (str.length - i - 1)));
+		}
+		return big;
+	}
+	
+	public static String bigInt2ipv6(BigInteger big){
+		String str = StringUtil.EMPTY;
+		BigInteger ff = BigInteger.valueOf(0xffff);
+		for (int i = 0; i < 8 ; i++){
+			str = big.and(ff).toString(16) + SymbolConstant.COLON + str;
+			big = big.shiftRight(16);
+		}
+		str = str.substring(0, str.length() - 1);
+		
+		return str.replaceFirst("(^|:)(0+(:|$)){2,8}", "::");
+	}
+
+
+	static public void main(String[] args) {
+	    String ipString = "2607:f0d0:1002:0051:0000:0000:0000:0004";
+//	    long[] asd = IPToLong(ipString);
+//	    System.out.println(longToIP(asd));
+	    BigInteger ip = ipv6toBigInt(ipString);
+	    System.out.println(ip);
+	    ip = ip.add(BigInteger.valueOf(204800));
+	    System.out.println(ip);
+	    System.out.println(bigInt2ipv6(ip));
+	    String result = HttpTool.get("http://ftp.ripe.net/ripe/stats/delegated-ripencc-latest");
+	    System.out.println(result);
+	}
 }

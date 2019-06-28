@@ -72,7 +72,7 @@ public class HttpTool {
     }
     
     public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap, Charset charset) {
-    	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpGet get = new HttpGet(url);
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
@@ -160,7 +160,7 @@ public class HttpTool {
      * @return
      */
     public static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, Charset charset){
-    	DefaultHttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpPost post = new HttpPost(url);
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
