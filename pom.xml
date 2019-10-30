@@ -23,7 +23,7 @@
 		<ecs.version>1.4.2</ecs.version>
 		<jackson.version>1.8.1</jackson.version>
 		<jta.version>1.0.1.GA</jta.version>
-		<commons-fileupload.version>1.2.2</commons-fileupload.version>
+		<commons-fileupload.version>1.3.3</commons-fileupload.version>
 		<jxl.version>2.6.12</jxl.version>
 		<common-lang.version>2.4</common-lang.version>
 		<common-io.version>1.3.2</common-io.version>
