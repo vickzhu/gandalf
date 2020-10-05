@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
  * @author vick.zhu
  *
  */
-public class RandonImgCodeUtil {
-	private static Logger logger = Logger.getLogger(RandonImgCodeUtil.class);
+public class RandomImgCodeUtil {
+	private static Logger logger = Logger.getLogger(RandomImgCodeUtil.class);
 
 	/**
 	 * 随机类
