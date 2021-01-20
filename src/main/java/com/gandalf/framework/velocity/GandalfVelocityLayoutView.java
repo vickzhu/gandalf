@@ -211,11 +211,12 @@ public class GandalfVelocityLayoutView extends VelocityToolboxView {
      * @return
      */
     private String matchLayoutUrl() {
-    	String layoutUrl = buildLayoutUrl(viewUri);//构建全路径
-        boolean exist = isExistLayout(layoutUrl);
-        if (exist) {
-            return layoutUrl;
-        }
+//    	//加上这段的话会默认匹配文件名，但是为了效率，去掉文件名匹配，直接匹配default.vm
+//    	String layoutUrl = buildLayoutUrl(viewUri);//构建全路径
+//        boolean exist = isExistLayout(layoutUrl);
+//        if (exist) {
+//            return layoutUrl;
+//        }
         while(viewUri.length() > 0){
         	if(viewUri.lastIndexOf(SymbolConstant.SLASH) > 0){
         		viewUri = viewUri.substring(0, viewUri.lastIndexOf(SymbolConstant.SLASH));
