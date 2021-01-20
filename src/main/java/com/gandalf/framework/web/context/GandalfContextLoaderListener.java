@@ -7,11 +7,7 @@ package com.gandalf.framework.web.context;
 
 import javax.servlet.ServletContextEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.ContextLoaderListener;
-
-import com.gandalf.framework.web.session.SessionConfig;
 
 /**
  * 类GandalfContextLoaderListener.java的实现描述：重写<@link ContextLoaderListener>的contextInitialized方法
@@ -20,22 +16,9 @@ import com.gandalf.framework.web.session.SessionConfig;
  */
 public class GandalfContextLoaderListener extends ContextLoaderListener {
 
-    private static Logger logger = LoggerFactory.getLogger(GandalfContextLoaderListener.class);
-
     public void contextInitialized(ServletContextEvent event) {
         super.contextInitialized(event);
         ServletContextHolder.setServletContext(event.getServletContext());
-        if (!checkSessionConfig()) {
-            logger.error("The value of useNativeSession is false,but the sessionStore is null!");
-            System.exit(-1);
-        }
-    }
-
-    private boolean checkSessionConfig() {
-        if (!SessionConfig.isUseNativeSession() && SessionConfig.getSessionStore() == null) {
-            return false;
-        }
-        return true;
     }
 
 }
