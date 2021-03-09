@@ -1,0 +1,2 @@
+#删除30天前的日志文件
+find /usr/local/nginx/logs/ -mtime +30 -name "*.log" -exec rm -rf {} \;
