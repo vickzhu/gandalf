@@ -15,7 +15,7 @@
 		<velocity.version>1.7</velocity.version>
 		<velocity-tools.version>2.0</velocity-tools.version>
 		<commons-dbcp.version>1.4</commons-dbcp.version>
-		<slf4j.version>1.5.8</slf4j.version>
+		<slf4j.version>1.7.25</slf4j.version>
 		<quartz.version>1.8.6</quartz.version>
 		<httpclient.version>4.5.1</httpclient.version>
 		<c3p0.version>0.9.1.2</c3p0.version>
@@ -27,8 +27,8 @@
 		<jxl.version>2.6.12</jxl.version>
 		<common-lang.version>2.4</common-lang.version>
 		<common-io.version>1.3.2</common-io.version>
-		<mybatis.version>3.2.4</mybatis.version>
-		<mybatis.spring>1.2.2</mybatis.spring>
+		<mybatis.version>3.4.1</mybatis.version>
+		<mybatis.spring>1.3.0</mybatis.spring>
 	</properties>
 
 	<dependencies>
@@ -215,6 +215,7 @@
 			<version>${mybatis.spring}</version>
 		</dependency>
 	</dependencies>
+	<!--
   	<repositories>
 		<repository>
 			<id>public</id>
@@ -252,6 +253,7 @@
 			<url>http://192.168.1.125:8081/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+	-->
 	<!-- svn http/https协议未安装，所以暂时不能访问 -->
 	<scm>
 		<connection>https://www.svnchina.com/svn/gandalf/tags/gandalf-framework</connection>
