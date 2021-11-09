@@ -15,13 +15,13 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  */
 public class PropertyConfigurer extends PropertyPlaceholderConfigurer {
 
-    private static Map<String, Object> ctxPropertiesMap;
+    private static Map<String, String> ctxPropertiesMap;
 
     @Override
     protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)
                                                                                                             throws BeansException {
         super.processProperties(beanFactoryToProcess, props);
-        ctxPropertiesMap = new HashMap<String, Object>();
+        ctxPropertiesMap = new HashMap<String, String>();
         for (Object key : props.keySet()) {
             String keyStr = key.toString();
             String value = props.getProperty(keyStr);
@@ -29,11 +29,8 @@ public class PropertyConfigurer extends PropertyPlaceholderConfigurer {
         }
     }
 
-    public static Object getProperty(String name) {
+    public static String getProperty(String name) {
         return ctxPropertiesMap.get(name);
     }
 
-    public static String getPropertyStr(String name) {
-        return (String) ctxPropertiesMap.get(name);
-    }
 }
