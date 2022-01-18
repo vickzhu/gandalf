@@ -7,52 +7,52 @@ package com.gandalf.framework.web.tool;
  */
 public class AjaxResult {
 
-    /**
-     * 返回结果
-     */
-    private Object  records;
-    /**
-     * 成功或失败消息
-     */
-    private String  message;
-    /**
-     * 是否成功
-     */
-    private boolean success;
+	/**
+	 * 返回结果
+	 */
+	private Object data;
+	/**
+	 * 成功或失败消息
+	 */
+	private String message;
+	/**
+	 * 是否成功
+	 */
+	private boolean success;
 
-    public AjaxResult(boolean success, String message) {
-        this.success = success;
-        this.message = message;
-    }
+	public AjaxResult(boolean success, String message) {
+		this.success = success;
+		this.message = message;
+	}
 
-    public AjaxResult(boolean success, String message, Object records) {
-        this.success = success;
-        this.message = message;
-        this.records = records;
-    }
+	public AjaxResult(boolean success, String message, Object data) {
+		this.success = success;
+		this.message = message;
+		this.data = data;
+	}
 
-    public String getMessage() {
-        return message;
-    }
+	public String getMessage() {
+		return message;
+	}
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
-    public Object getRecords() {
-        return records;
-    }
+	public Object getData() {
+		return data;
+	}
 
-    public void setRecords(Object records) {
-        this.records = records;
-    }
+	public void setData(Object data) {
+		this.data = data;
+	}
 
-    public boolean isSuccess() {
-        return success;
-    }
+	public boolean isSuccess() {
+		return success;
+	}
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
 
 }
