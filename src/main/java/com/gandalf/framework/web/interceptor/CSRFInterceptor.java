@@ -11,7 +11,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.gandalf.framework.util.StringUtil;
-import com.gandalf.framework.web.tool.RequestUtil;
 import com.gandalf.framework.web.tool.TokenUtil;
 
 /**
@@ -64,32 +63,16 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
                 }
             }
         }
-        if(RequestUtil.isAjaxRequest(request)){//如果为异步请求
-        	String token = request.getHeader(TokenUtil.HEADER_KEY);
-        	if(StringUtil.isBlank(token)){//此处兼容采用隐藏字段提交的方式$!{tokenTool.hiddenField}
-        		token = request.getParameter(TokenUtil.TOKEN_KEY);
-        	}
-        	if(StringUtil.isBlank(token)){
-        		response.setStatus(403);
-        		return false;
-        	}
-    		if(!TokenUtil.checkToken(token, request, response)){
-    			response.setStatus(403);
-    			return false;
-    		}
-    		TokenUtil.setTokenInCookie(request, response);
-    		return true;
-        	
-        } else {
-        	if (!TokenUtil.checkToken(request, response)) {
-                if (StringUtil.isBlank(redirectURI)) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, expireTip);
-                } else {
-                    response.sendRedirect(redirectURI);
-                }
-                return false;
+ 
+    	if (!TokenUtil.checkToken(request, response)) {
+            if (StringUtil.isBlank(redirectURI)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, expireTip);
+            } else {
+                response.sendRedirect(redirectURI);
             }
+            return false;
         }
+        
         return true;
     }
     

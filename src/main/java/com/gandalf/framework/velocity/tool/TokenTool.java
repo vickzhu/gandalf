@@ -15,25 +15,31 @@ import com.gandalf.framework.web.tool.TokenUtil;
 @DefaultKey("tokenTool")
 @ValidScope(Scope.APPLICATION)
 public class TokenTool extends AbstractTool {
-
-    public InputRender getHiddenField() {
-        String token = TokenUtil.getToken(request, response);
-        return new InputRender("hidden", TokenUtil.getTokenKey(), token);
+	
+	/**
+	 * 生成隐藏的input
+	 * @return
+	 */
+	public InputRender getHiddenInput() {
+		return getHiddenInput(0);
+	}
+    
+	/**
+	 * 生成隐藏的Input
+	 * @return
+	 */
+    public InputRender getHiddenInput(int type) {
+    	String token = TokenUtil.getLongToken(request, response);
+    	String inputName = TokenUtil.getCsrfTokenKey();
+    	if(type == 1) {//防止重复提交
+    		token = TokenUtil.getOnceToken(request, response);
+    		inputName = TokenUtil.getOnceTokenKey();
+    	}
+        return new InputRender("hidden", inputName, token);
     }
     
     public String getTokenKey(){
-    	return TokenUtil.getTokenKey();
-    }
-    
-    public String getToken(){
-    	return TokenUtil.getToken(request, response);
-    }
-    
-    /**
-     * 启用异步token
-     */
-    public void enableAjaxToken(){
-    	TokenUtil.setTokenInCookie(request, response);
+    	return TokenUtil.getCsrfTokenKey();
     }
     
 }
