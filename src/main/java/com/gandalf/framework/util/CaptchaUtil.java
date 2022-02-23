@@ -28,7 +28,7 @@ import javax.imageio.ImageIO;
  */
 public class CaptchaUtil {
 
-    public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    public static final String VERIFY_CODES = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
     private static Random      random       = new Random();
 
     /**
@@ -115,17 +115,17 @@ public class CaptchaUtil {
      */
     public static void outputImage(int w, int h, OutputStream os, String code) throws IOException {
         int fontSize = h * 5 / 6;
-        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(w+5, h+5, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g2 = image.createGraphics();
         // 消除锯齿边缘
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        Color c = getRandColor(200, 250);
+        Color c = getRandColor(150, 250);
         g2.setColor(c);// 设置背景色
-        g2.fillRect(0, 2, w, h - 4);
+        g2.fillRect(0, 2, w+60, h+50);
         g2.setColor(c);// 设置边框色
-        g2.fillRect(0, 0, w, h);
+        g2.fillRect(0, 0, w+60, h);
 
         Color fontColor = Color.BLACK;
 
