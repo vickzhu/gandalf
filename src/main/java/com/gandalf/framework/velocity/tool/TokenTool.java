@@ -23,6 +23,10 @@ public class TokenTool extends AbstractTool {
 	public InputRender getHiddenInput() {
 		return getHiddenInput(0);
 	}
+	
+	public InputRender getHiddenInputOnce() {
+		return getHiddenInput(1);
+	}
     
 	/**
 	 * 生成隐藏的Input
@@ -36,6 +40,10 @@ public class TokenTool extends AbstractTool {
     		inputName = TokenUtil.getOnceTokenKey();
     	}
         return new InputRender("hidden", inputName, token);
+    }
+    
+    public String getTokenValue() {
+    	return TokenUtil.getLongToken(request, response);
     }
     
     public String getTokenKey(){
