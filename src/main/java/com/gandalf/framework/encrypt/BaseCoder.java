@@ -11,6 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.binary.StringUtils;
@@ -103,6 +104,26 @@ class BaseCoder {
     protected static byte[] hex2Byte(String data) throws DecoderException {
         return new Hex().decode(data.getBytes());
     }
+    
+    /**
+     * 字节数组转换为32进制
+     * @param data
+     * @return
+     */
+    protected static String byte2Base32(byte[] data) {
+    	Base32 base32 = new Base32();
+    	return base32.encodeToString(data);
+    }
+    
+    /**
+     * 32进制转换为字节数组
+     * @param data
+     * @return
+     */
+    protected static byte[] base322Byte(String data) {
+    	Base32 base32 = new Base32();
+    	return base32.decode(data);
+    }
 
     /**
      * 字节数组转换为Base64
@@ -130,8 +151,8 @@ class BaseCoder {
      * @return
      * @throws Exception
      */
-    protected static String initMacKey() throws Exception {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance(KEY_MAC);
+    protected static String initMacKey(String keyMac) throws Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance(keyMac);
         SecretKey secretKey = keyGenerator.generateKey();
         return byte2Base64(secretKey.getEncoded());
     }
@@ -144,10 +165,11 @@ class BaseCoder {
      * @return
      * @throws Exception
      */
-    protected static byte[] encryptHMAC(byte[] data, String key) throws Exception {
-        SecretKey secretKey = new SecretKeySpec(base642Byte(key), KEY_MAC);
+    protected static byte[] encryptHMAC(byte[] key, byte[] data, String keyMac) throws Exception {
+        SecretKey secretKey = new SecretKeySpec(key, keyMac);
         Mac mac = Mac.getInstance(secretKey.getAlgorithm());
         mac.init(secretKey);
         return mac.doFinal(data);
     }
+    
 }
