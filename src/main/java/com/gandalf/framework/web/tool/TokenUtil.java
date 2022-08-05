@@ -26,7 +26,7 @@ public class TokenUtil {
 	/**
 	 * 表单提交Token的名字
 	 */
-	public static final String ONCE_TOKEN_KEY = "_onceToken";
+	public static final String NONCE_TOKEN_KEY = "_nonceToken";
 	/**
 	 * 一次性Token在session中的key
 	 */
@@ -52,8 +52,8 @@ public class TokenUtil {
 		return CSRF_TOKEN_KEY;
 	}
 
-	public static String getOnceTokenKey() {
-		return ONCE_TOKEN_KEY;
+	public static String getNonceTokenKey() {
+		return NONCE_TOKEN_KEY;
 	}
 
 	/**
@@ -92,8 +92,8 @@ public class TokenUtil {
 	 * @return
 	 */
 	public static boolean checkToken(HttpServletRequest request, HttpServletResponse response) {
-		String token = request.getParameter(ONCE_TOKEN_KEY);
-		if (StringUtil.isNotBlank(token)) {// 防止表单重复提交
+		String token = request.getParameter(NONCE_TOKEN_KEY);
+		if (StringUtil.isNotBlank(token)) {// 临时token，主要防止表单重复提交
 			return checkToken(token, request, response);
 		}
 		token = request.getParameter(CSRF_TOKEN_KEY);

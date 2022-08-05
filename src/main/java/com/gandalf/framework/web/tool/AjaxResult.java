@@ -8,6 +8,10 @@ package com.gandalf.framework.web.tool;
 public class AjaxResult {
 
 	/**
+	 * 状态码，默认200
+	 */
+	private int code = 200;
+	/**
 	 * 返回结果
 	 */
 	private Object data;
@@ -18,15 +22,41 @@ public class AjaxResult {
 	/**
 	 * 是否成功
 	 */
+	@Deprecated
 	private boolean success;
 
-	public AjaxResult(boolean success, String message) {
-		this.success = success;
+	/**
+	 * 默认返回200的状态码
+	 */
+	public AjaxResult() {
+		this.code = 200;
+		this.message = "sucess";
+	}
+	
+	/**
+	 * 默认成功
+	 * @param data
+	 */
+	public AjaxResult(Object data) {
+		this.code = 200;
+		this.message = "sucess";
+		this.data = data;
+	}
+
+	public AjaxResult(int code, String message) {
+		this.code = code;
 		this.message = message;
 	}
 
+	@Deprecated
+	public AjaxResult(boolean success, String message) {
+		this.code = success ? 200 : 500;
+		this.message = message;
+	}
+
+	@Deprecated
 	public AjaxResult(boolean success, String message, Object data) {
-		this.success = success;
+		this.code = success ? 200 : 500;
 		this.message = message;
 		this.data = data;
 	}
@@ -53,6 +83,25 @@ public class AjaxResult {
 
 	public void setSuccess(boolean success) {
 		this.success = success;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+	
+	public void setError(int code, String message) {
+		this.code = code;
+		this.message = message;
+	}
+	
+	public void setSuccess(Object data) {
+		this.code = 200;
+		this.message = "success";
+		this.data = data;
 	}
 
 }
