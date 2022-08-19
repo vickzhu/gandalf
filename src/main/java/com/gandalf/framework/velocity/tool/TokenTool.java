@@ -67,11 +67,11 @@ public class TokenTool extends AbstractTool {
         return new InputRender("hidden", inputName, token);
     }
     
-    public String getTokenValue() {
+    public String getCsrfValue() {
     	return TokenUtil.getLongToken(request, response);
     }
     
-    public String getTokenKey(){
+    public String getCsrfKey(){
     	return TokenUtil.getCsrfTokenKey();
     }
     
