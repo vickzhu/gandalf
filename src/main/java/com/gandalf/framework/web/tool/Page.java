@@ -38,6 +38,7 @@ public class Page<M> {
 	
 	public void setCurPage(int curPage) {
 		this.curPage = curPage;
+		setOffset();
 	}
 	
 	public int getPageSize() {
