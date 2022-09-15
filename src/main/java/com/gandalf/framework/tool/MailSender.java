@@ -53,8 +53,10 @@ public class MailSender {
 				to[i] = new InternetAddress(recipients[i]);
 			}
 			if (recipients.length == 1) {
+				//收件人
 				mailMessage.setRecipients(Message.RecipientType.TO, to);
 			} else {
+				//暗送人
 				mailMessage.setRecipients(Message.RecipientType.BCC, to);
 			}
 			// 设置邮件消息发送的时间
@@ -66,7 +68,6 @@ public class MailSender {
 			// 发送邮件
 			Transport.send(mailMessage);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
 			logger.error("Send email failed!", e);
 			return false;
 		}
@@ -79,19 +80,22 @@ public class MailSender {
 			return session;
 		}
 		Properties pro = new Properties();
+		// 开启debug调试
+//		pro.setProperty("mail.debug", "true");
 		pro.setProperty(PROTOCAL, SMTP);
 		pro.put(HOST, config.getHost());
 		pro.put(PORT, config.getPort());
 		pro.put(AUTH, config.isAuth());
 		pro.put(STARTTLS_ENABLE, config.isStarttls());
 		if (config.isStarttls()) {
+			pro.put(SOCKET_FACOTY_FALLBACK, Boolean.TRUE);//If set to true, failure to create a socket using the specified socket factory class will cause the socket to be created using the java.net.Socket class. Defaults to true.
 			pro.put(SOCKET_FACOTY_CLASS, SSL_SOCKET_FACTORY);
-			pro.put(SOCKET_FACOTY_FALLBACK, Boolean.FALSE);
 			pro.put(SOCKET_FACOTY_PORT, config.getPort());
 			MailSSLSocketFactory sf = new MailSSLSocketFactory();
-			sf.setTrustAllHosts(true);
+			sf.setTrustAllHosts(Boolean.TRUE);
 			pro.put(SOCKET_FACTORY, sf);
 		}
+		// 发送服务器需要身份验证
 		if(config.isAuth()) {
 			session = Session.getInstance(pro, new Authenticator() {
 				protected PasswordAuthentication getPasswordAuthentication() {
@@ -106,18 +110,40 @@ public class MailSender {
 	}
 
 	public static void main(String[] args) {
+//		sendQQ();
+		sendOutlook();
+	}
+	
+	public static void sendQQ() {
 		MailConfig config = new MailConfig();
 		config.setAuth(true);
 		config.setHost("smtp.exmail.qq.com");
 		config.setNickName("Honey");
-		config.setUserName("xxx@gmail.com");
-		config.setPassword("Your password");
+		config.setUserName("");
+		config.setPassword("");
 		config.setPort("465");
-		config.setSender("xxx@gmail.com");
+		config.setSender("");
 		config.setStarttls(true);
 		String title = "This is title";
 		String content = "This is content!";
-		String[] recipients = new String[] {"xxx_xxx@gmail.com"};
+		String[] recipients = new String[] {""};
+		send(config, recipients, title, content);
+		System.out.println("The end。。。。。。");
+	}
+	
+	public static void sendOutlook() {
+		MailConfig config = new MailConfig();
+		config.setAuth(true);
+		config.setHost("smtp.office365.com");
+		config.setNickName("Honey");
+		config.setUserName("");
+		config.setPassword("");
+		config.setPort("587");
+		config.setSender("");
+		config.setStarttls(true);
+		String title = "This is title";
+		String content = "This is content!";
+		String[] recipients = new String[] {""};
 		send(config, recipients, title, content);
 		System.out.println("The end。。。。。。");
 	}
