@@ -38,6 +38,11 @@ public class HttpTool {
 
     private static Charset      DEFAULT_CHARSET = Charset.forName(CharsetConstant.UTF_8);
     private static final Logger logger          = LoggerFactory.getLogger(HttpTool.class);
+    
+    public static void main(String[] args) {
+    	String result = get("https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20221121.json");
+    	System.out.println(result);
+    }
 
     /**
      * http get 方法,默认utf-8编码
@@ -96,8 +101,10 @@ public class HttpTool {
             }
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
         } finally {
             get.releaseConnection();
         }

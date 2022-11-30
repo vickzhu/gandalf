@@ -1,8 +1,13 @@
 package com.gandalf.framework.net;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -15,6 +20,7 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -104,22 +110,41 @@ public class HttpClientFactory {
 		private static PoolingHttpClientConnectionManager pcm;
 		static {
 			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
-					.<ConnectionSocketFactory> create();
+					.<ConnectionSocketFactory>create();
 			registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());
-			registryBuilder.register("https", SSLConnectionSocketFactory.getSocketFactory());
-			
-			SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SOCKET_TIMEOUT).build();//接收数据的等待超时时间
-			RequestConfig.Builder  requestConfigBuilder = RequestConfig.custom();
-			requestConfigBuilder.setConnectTimeout(CONNECTION_TIMEOUT);//连接超时时间
-			requestConfigBuilder.setConnectionRequestTimeout(CONN_MANAGER_TIMEOUT);////从池中获取连接超时时间
+			try {
+				//忽略ssl证书验证
+				SSLContext sslContext = SSLContext.getInstance("SSL");
+				sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+					public X509Certificate[] getAcceptedIssuers() {
+						return null;
+					}
+
+					public void checkClientTrusted(X509Certificate[] certs, String authType) {
+					
+					}
+
+					public void checkServerTrusted(X509Certificate[] certs, String authType) {
+
+					}
+				} }, new SecureRandom());
+				registryBuilder.register("https", new SSLConnectionSocketFactory(sslContext));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SOCKET_TIMEOUT).build();// 接收数据的等待超时时间
+			RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+			requestConfigBuilder.setConnectTimeout(CONNECTION_TIMEOUT);// 连接超时时间
+			requestConfigBuilder.setConnectionRequestTimeout(CONN_MANAGER_TIMEOUT);//// 从池中获取连接超时时间
 			RequestConfig requestConfig = requestConfigBuilder.build();
-			
+
 			Registry<ConnectionSocketFactory> registry = registryBuilder.build();
 			pcm = new PoolingHttpClientConnectionManager(registry);
 			pcm.setMaxTotal(MAX_TOTAL_CONNECTIONS);
 			pcm.setDefaultMaxPerRoute(MAX_ROUTE_CONNECTIONS);
 			pcm.setDefaultSocketConfig(socketConfig);
-			
+
 			HttpClientBuilder httpClientBuilder = HttpClients.custom();
 			httpClientBuilder.setConnectionManager(pcm);
 			httpClientBuilder.setRetryHandler(new RetryHandler());
