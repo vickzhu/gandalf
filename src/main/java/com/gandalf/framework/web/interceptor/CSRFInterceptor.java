@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -23,6 +25,8 @@ import com.gandalf.framework.web.tool.TokenUtil;
  * @author gandalf 2014-3-11 下午2:42:00
  */
 public class CSRFInterceptor extends HandlerInterceptorAdapter {
+	
+	private Logger logger = LoggerFactory.getLogger(CSRFInterceptor.class);
 
     private Pattern     pattern    = Pattern.compile("GET|HEAD|OPTIONS|TRACE");
     private PathMatcher uriMatcher = new AntPathMatcher();
@@ -64,7 +68,8 @@ public class CSRFInterceptor extends HandlerInterceptorAdapter {
             }
         }
  
-    	if (!TokenUtil.checkToken(request, response)) {
+    	if (!TokenUtil.checkToken(request, response)) {//Token不正确
+    		logger.info("CsrfToken check failed:" + request.getRequestURI());
             if (StringUtil.isBlank(redirectURI)) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, expireTip);
             } else {

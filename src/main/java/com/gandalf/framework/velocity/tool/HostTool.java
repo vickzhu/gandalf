@@ -30,8 +30,9 @@ public class HostTool extends AbstractTool {
      */
     public Renderable getBasePath() {
         StringBuffer sb = new StringBuffer();
-        sb.append(request.getScheme());
-        sb.append(SymbolConstant.COLON).append(SymbolConstant.DOUBLE_SLASH);
+//        sb.append(request.getScheme());
+//        sb.append(SymbolConstant.COLON);
+        sb.append(SymbolConstant.DOUBLE_SLASH);
         sb.append(request.getServerName());
         if (request.getServerPort() != 80) {
             sb.append(SymbolConstant.COLON + request.getServerPort());

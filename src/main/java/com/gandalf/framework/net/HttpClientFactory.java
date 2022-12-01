@@ -20,7 +20,6 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -113,7 +112,7 @@ public class HttpClientFactory {
 					.<ConnectionSocketFactory>create();
 			registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());
 			try {
-				//忽略ssl证书验证
+				//忽略SSL证书验证
 				SSLContext sslContext = SSLContext.getInstance("SSL");
 				sslContext.init(null, new TrustManager[] { new X509TrustManager() {
 					public X509Certificate[] getAcceptedIssuers() {
