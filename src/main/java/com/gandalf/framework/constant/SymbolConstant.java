@@ -64,12 +64,16 @@ public class SymbolConstant {
      */
     public static final String EQUALS       = "=";
     /**
-     * 双引号
+     * 双引号["]
      */
     public static final String DOUBLE_QUOTE = "\"";
     /**
-     * 单引号
+     * 单引号[']
      */
     public static final String SINGLE_QUOTE = "'";
+    /**
+     * 空格[ ]
+     */
+    public static final String BLANK = " ";
 
 }
