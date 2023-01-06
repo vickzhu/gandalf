@@ -2,7 +2,7 @@ package com.gandalf.framework.mybatis;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
+import com.gandalf.framework.web.tool.Page;
 
 public interface BaseService<M, E> {
 
@@ -22,9 +22,9 @@ public interface BaseService<M, E> {
 
     M selectByPrimaryKey(Long primaryKey);
 
-    int updateByExampleSelective(@Param("record") M record, @Param("example") E example);
+    int updateByExampleSelective(M record, E example);
 
-    int updateByExample(@Param("record") M record, @Param("example") E example);
+    int updateByExample(M record, E example);
 
     int updateByPrimaryKeySelective(M record);
 
@@ -32,5 +32,17 @@ public interface BaseService<M, E> {
 
     int updateByPrimaryKeyWithBLOBs(M record);
 
-    int updateByExampleWithBLOBs(@Param("record") M record, @Param("example") E example);
+    int updateByExampleWithBLOBs(M record, E example);
+    
+    /**
+     * <pre>
+     * 注意：example需要预先设置offset和rows两个参数，这两个参数可以从page中获取
+     * example.setOffset(page.getOffset());
+     * example.setRows(page.getPageSize());
+     * </pre>
+     * @param example
+     * @param page
+     */
+    void selectByPagination(E example, Page<M> page);
+    
 }

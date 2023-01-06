@@ -2,6 +2,8 @@ package com.gandalf.framework.mybatis;
 
 import java.util.List;
 
+import com.gandalf.framework.web.tool.Page;
+
 public abstract class BaseServiceImpl<M, E> implements BaseService<M, E> {
 
     protected abstract BaseMapper<M, E> getMapper();
@@ -75,5 +77,13 @@ public abstract class BaseServiceImpl<M, E> implements BaseService<M, E> {
     public int updateByExampleWithBLOBs(M record, E example) {
         return getMapper().updateByExampleWithBLOBs(record, example);
     }
+    
+    @Override
+	public void selectByPagination(E example, Page<M> page) {
+		int totalCounts = getMapper().countByExample(example);
+		page.setTotalCounts(totalCounts);
+		List<M> mList = getMapper().selectByExample(example);
+		page.setRecords(mList);
+	}
 
 }
