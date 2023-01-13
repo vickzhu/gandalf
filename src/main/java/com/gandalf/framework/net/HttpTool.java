@@ -18,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gandalf.framework.constant.CharsetConstant;
 import com.gandalf.framework.constant.SymbolConstant;
+import com.gandalf.framework.util.StringUtil;
 
 /**
  * 类HttpTool.java的实现描述：http连接类
@@ -234,6 +236,42 @@ public class HttpTool {
             }
         }
         post.setEntity(entity);
+        try {
+            HttpResponse response = httpClient.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+                return EntityUtils.toString(response.getEntity(), charset);
+            } else {
+                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Access [" + url + "] failure!", e);
+        } catch (IOException e) {// 网络异常
+            logger.error("Access [" + url + "] failure!", e);
+        } finally {
+            post.releaseConnection();
+        }
+        return null;
+    }
+    
+    public static String postJson(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset) {
+    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpPost post = new HttpPost(url);
+    	if(cookieMap != null){
+    		String cookieStr = toCookieStr(cookieMap);
+    		post.setHeader(new BasicHeader("Cookie", cookieStr));
+    	}
+    	headerMap.put("Content-Type", "application/json");
+		headerMap.put("Accept-Encoding", "gzip, deflate, br");
+        if(headerMap != null) {
+        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+        		post.addHeader(entry.getKey(), entry.getValue());
+        	}
+        }
+        if (StringUtil.isNotBlank(bodyJson)) {
+            StringEntity entity = new StringEntity(bodyJson, charset);
+            post.setEntity(entity);
+        }
         try {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
