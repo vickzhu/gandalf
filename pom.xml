@@ -9,7 +9,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>4.0.1.RELEASE</spring.version>
+		<spring.version>4.2.5.RELEASE</spring.version>
 		<servlet-api.version>2.3</servlet-api.version>
 		<velocity.version>1.7</velocity.version>
 		<velocity-tools.version>2.0</velocity-tools.version>
@@ -20,7 +20,7 @@
 		<c3p0.version>0.9.1.2</c3p0.version>
 		<cglib.version>2.1</cglib.version>
 		<ecs.version>1.4.2</ecs.version>
-		<jackson.version>1.8.1</jackson.version>
+		<jackson.version>2.6.6</jackson.version>
 		<jta.version>1.0.1.GA</jta.version>
 		<commons-fileupload.version>1.2.2</commons-fileupload.version>
 		<jxl.version>2.6.12</jxl.version>
@@ -176,14 +176,9 @@
 			<version>${ecs.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>${jackson.version}</version>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		    <version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.javaee</groupId>

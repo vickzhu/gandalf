@@ -16,10 +16,10 @@ import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gandalf.framework.constant.CharsetConstant;
 import com.gandalf.framework.constant.SymbolConstant;
 import com.gandalf.framework.encrypt.AESUtil;

@@ -254,6 +254,10 @@ public class HttpTool {
         return null;
     }
     
+    public static String postJson(String url, Map<String, String> headerMap, String bodyJson) {
+    	return postJson(url, headerMap, bodyJson, null, Charset.forName("UTF-8"));
+    }
+    
     public static String postJson(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset) {
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpPost post = new HttpPost(url);
@@ -282,8 +286,10 @@ public class HttpTool {
             }
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
         } finally {
             post.releaseConnection();
         }
