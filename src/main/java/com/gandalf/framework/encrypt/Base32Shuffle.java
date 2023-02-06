@@ -1,15 +1,15 @@
-package com.gandalf.framework.util;
+package com.gandalf.framework.encrypt;
 
 /**
  * 将数字转换为32进制
  * @author gandalf
  *
  */
-public class Base32 {
+public class Base32Shuffle {
 	
 	final static char[] digits = { '0', 'Z','1', 'U','2','E','Y','M', 'W','3','V', '4', 'F',
 		'T','5','P', '6','H', 'R','Q', '7', 'X', '8', '9','A',  'C', 'D', 'G',  'I', 'J', 
-		'K', 'L', 'N', 'O', 'B', 'S' };  
+		'K', 'L', 'N', 'O', 'B', 'S' }; 
 
 	/** 
 	 * 把10进制的数字转换成32进制 
