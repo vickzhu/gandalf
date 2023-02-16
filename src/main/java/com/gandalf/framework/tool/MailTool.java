@@ -48,7 +48,7 @@ public class MailTool {
 	}
 	
 	public static void main(String[] args) {
-		String email = "abc@jfjslfjsadl.com";
+		String email = "melous@aurlee.net";
 //		System.out.println(MailTool.isValid(email));
 		System.out.println(MailTool.isExist(email));
 		

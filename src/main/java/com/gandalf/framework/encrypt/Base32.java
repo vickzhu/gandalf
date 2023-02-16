@@ -7,6 +7,10 @@ public class Base32 extends BaseCoder {
 	public static String encode(String text) {
 		return byte2Base32(text.getBytes(Charset.forName("UTF-8")));
 	}
+	
+	public static String encode(byte[] b) {
+		return byte2Base32(b);
+	}
 
 	public static String decode(String text) {
 		return new String(base322Byte(text), Charset.forName("UTF-8"));
