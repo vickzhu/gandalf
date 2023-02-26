@@ -19,11 +19,6 @@ public class AjaxResult {
 	 * 成功或失败消息
 	 */
 	private String message;
-	/**
-	 * 是否成功
-	 */
-	@Deprecated
-	private boolean success;
 
 	/**
 	 * 默认返回200的状态码
@@ -48,19 +43,6 @@ public class AjaxResult {
 		this.message = message;
 	}
 
-	@Deprecated
-	public AjaxResult(boolean success, String message) {
-		this.code = success ? 200 : 500;
-		this.message = message;
-	}
-
-	@Deprecated
-	public AjaxResult(boolean success, String message, Object data) {
-		this.code = success ? 200 : 500;
-		this.message = message;
-		this.data = data;
-	}
-
 	public String getMessage() {
 		return message;
 	}
@@ -75,14 +57,6 @@ public class AjaxResult {
 
 	public void setData(Object data) {
 		this.data = data;
-	}
-
-	public boolean isSuccess() {
-		return success;
-	}
-
-	public void setSuccess(boolean success) {
-		this.success = success;
 	}
 
 	public int getCode() {

@@ -113,6 +113,38 @@ public class HttpTool {
         return null;
     }
     
+    public static String getWithSsl(String url, Map<String, String> headerMap, KeyStoreProp ksp) {
+    	HttpClient httpClient = HttpClientFactory.getCustomHttpClient(ksp);
+    	HttpGet get = new HttpGet(url);
+    	if(headerMap == null){
+    		headerMap = new HashMap<String, String>();
+    	}
+    	headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36");
+		headerMap.put("Accept-Encoding", "gzip, deflate, sdch");
+    	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+    		get.addHeader(entry.getKey(), entry.getValue());
+    	}
+        try {
+            HttpResponse response = httpClient.execute(get);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.SC_OK) {
+            	boolean gzip = isGzip(response);
+            	return EntityUtils.toString(response.getEntity(), Charset.forName(CharsetConstant.UTF_8), gzip);
+            } else {
+            	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
+        } catch (IOException e) {// 网络异常
+            logger.error("Access [" + url + "] failure!", e);
+            e.printStackTrace();
+        } finally {
+            get.releaseConnection();
+        }
+        return null;
+    }
+    
     private static final String CONTENTENCODING = "Content-Encoding";
     private static final String GZIP = "gzip";
     
@@ -215,7 +247,7 @@ public class HttpTool {
      */
     public static String postFile(String url, Map<String, String> paramMap, Map<String, FileBody> fileMap,
                                   Charset charset) {
-        HttpClient httpClient = HttpClientFactory.getHttpClient();
+    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
         HttpPost post = new HttpPost(url);
         MultipartEntity entity = new MultipartEntity();
         if (fileMap != null) {
