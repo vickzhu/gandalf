@@ -1,5 +1,6 @@
 package com.gandalf.framework.web.tool;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +9,9 @@ import java.util.List;
  *
  * @param <E>
  */
-public class Page<M> {
+public class Page<M> implements Serializable {
+
+	private static final long serialVersionUID = 6358744597666526022L;
 	
 	private int curPage = 1;
 	private int pageSize = 10;
