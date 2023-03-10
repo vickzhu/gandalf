@@ -2,6 +2,7 @@ package com.gandalf.framework.net;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -322,28 +323,55 @@ public class HttpTool {
             	System.out.println("Get error status:" + statusCode + ", Url:" + url);
             	return null;
             }
-            if("br".equals(response.getLastHeader("Content-Encoding").getValue())) {
-            	BrotliInputStream stream = new BrotliInputStream(response.getEntity().getContent());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-                StringBuilder result = new StringBuilder();
-                String str = null;
-                while ((str = reader.readLine()) != null) {
-                    result.append(str);
-                }
-                return result.toString();
+            Header header = response.getLastHeader("Content-Encoding");
+            if(header != null && "br".equals(header.getValue())) {
+            	return extractBrotliContent(response.getEntity().getContent());
             } else {
             	return EntityUtils.toString(response.getEntity(), charset);
             }
         } catch (ClientProtocolException e) {// 协议错误
-            logger.error("Access [" + url + "] failure!", e);
+            logger.error("Post [" + url + "] failure!", e);
             e.printStackTrace();
         } catch (IOException e) {// 网络异常
-            logger.error("Access [" + url + "] failure!", e);
+            logger.error("Post [" + url + "] failure!", e);
             e.printStackTrace();
         } finally {
             post.releaseConnection();
         }
         return null;
+    }
+    
+    private static String extractBrotliContent(InputStream is) {
+    	StringBuilder result = new StringBuilder();
+    	BufferedReader reader = null;
+    	InputStreamReader isr = null;
+    	try {
+    		BrotliInputStream stream = new BrotliInputStream(is);
+    		isr = new InputStreamReader(stream);
+            reader = new BufferedReader(isr);
+            String str = null;
+            while ((str = reader.readLine()) != null) {
+                result.append(str);
+            }
+    	} catch(Exception e) {
+    		e.printStackTrace();
+    	} finally {
+    		if(reader != null) {
+    			try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+    		}
+    		if(isr != null) {
+    			try {
+					isr.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+    		}
+    	}
+        return result.toString();
     }
     
     /**
