@@ -1,6 +1,8 @@
 package com.gandalf.framework.net;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -24,6 +26,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,7 +300,10 @@ public class HttpTool {
     		String cookieStr = toCookieStr(cookieMap);
     		post.setHeader(new BasicHeader("Cookie", cookieStr));
     	}
-    	headerMap.put("Content-Type", "application/json");
+    	if(headerMap == null) {
+    		headerMap = new HashMap<String, String>();
+    	}
+    	headerMap.put("Content-Type", "text/plain;charset=UTF-8");
 		headerMap.put("Accept-Encoding", "gzip, deflate, br");
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
@@ -311,10 +317,22 @@ public class HttpTool {
         try {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_OK) {
-                return EntityUtils.toString(response.getEntity(), charset);
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("Get error status:" + statusCode + ", Url:" + url);
+            	System.out.println("Get error status:" + statusCode + ", Url:" + url);
+            	return null;
+            }
+            if("br".equals(response.getLastHeader("Content-Encoding").getValue())) {
+            	BrotliInputStream stream = new BrotliInputStream(response.getEntity().getContent());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                StringBuilder result = new StringBuilder();
+                String str = null;
+                while ((str = reader.readLine()) != null) {
+                    result.append(str);
+                }
+                return result.toString();
             } else {
-                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            	return EntityUtils.toString(response.getEntity(), charset);
             }
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);

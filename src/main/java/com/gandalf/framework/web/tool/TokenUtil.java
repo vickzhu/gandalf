@@ -3,11 +3,9 @@ package com.gandalf.framework.web.tool;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.aliyun.oss.common.utils.StringUtils;
 import com.gandalf.framework.constant.SymbolConstant;
 import com.gandalf.framework.util.StringUtil;
 import com.gandalf.framework.web.token.store.TokenStore;
