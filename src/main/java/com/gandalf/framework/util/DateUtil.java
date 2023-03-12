@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * 类DateUtil.java的实现描述：日期工具类
@@ -13,6 +14,13 @@ import java.util.Date;
 public class DateUtil {
 	
 	private static SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static SimpleDateFormat fullSdfIso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	private static SimpleDateFormat fullSdfIso8601Fractional = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	
+	static {
+		fullSdfIso8601.setTimeZone(TimeZone.getTimeZone("UTC"));
+		fullSdfIso8601Fractional.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 
     /**
      * 字符串转换成日期
@@ -68,6 +76,71 @@ public class DateUtil {
             return StringUtil.EMPTY;
         }
     	return fullSdf.format(date);
+    }
+    
+    /**
+     * <pre>
+     * 将UTC时间转换为当前系统时区时间
+     * Current date and time expressed according to ISO 8601:
+     * Date	2023-03-12
+     * Date and time in UTC	
+     * 	2023-03-12T08:18:49+00:00
+     * 	2023-03-12T08:18:49Z
+     * 	20230312T081849Z
+     * Week	2023-W10
+     * Week with weekday	2023-W10-7
+     * Ordinal date	2023-071
+     * </pre>
+     * @param date
+     * @return
+     */
+    public static Date parseIso8601(String date) {
+    	if(date.endsWith("Z")) {
+    		date = date.replace("Z", "+0000");
+    	}
+    	try {
+			return fullSdfIso8601.parse(date);
+		} catch (ParseException e) {
+			return null;
+		}
+    }
+    
+    /**
+     * 将时间转换为yyyy-MM-ddTHH:mm:ssZ格式
+     * @param date
+     * @return
+     */
+    public static String formatIso8601(Date date) {
+    	return fullSdfIso8601.format(date);
+    }
+    
+    /**
+     * <pre>
+     * 将UTC时间转换为当前系统时区时间
+     * 带小数秒的ISO 8601格式
+     * 2023-03-12T08:18:49.011Z
+     * </pre>
+     * @param date
+     * @return
+     */
+    public static Date parseIso8601Fractional(String date) {
+    	if(date.endsWith("Z")) {
+    		date = date.replace("Z", "+0000");
+    	}
+    	try {
+			return fullSdfIso8601Fractional.parse(date);
+		} catch (ParseException e) {
+			return null;
+		}
+    }
+    
+    /**
+     * 将时间转换为yyyy-MM-ddTHH:mm:ssSSSZ格式
+     * @param date
+     * @return
+     */
+    public static String formatIso8601Fractional(Date date) {
+    	return fullSdfIso8601Fractional.format(date);
     }
     
     /**
