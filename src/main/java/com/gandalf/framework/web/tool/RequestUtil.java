@@ -33,6 +33,9 @@ public class RequestUtil {
      */
     public static String getIp(final HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
+        if(ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {//cloudflare
+        	ip = request.getHeader("cf-connecting-ip");
+        }
         if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
         }
@@ -51,4 +54,18 @@ public class RequestUtil {
         }
         return ip;
     }
+    
+    /**
+     * 获取最近路由IP
+     * @param request
+     * @return
+     */
+    public static String getTerminalIp(final HttpServletRequest request) {
+        String ip = request.getHeader("cf-connecting-ip");//可能前面加了CloudFlare
+        if (ip == null || ip.length() == 0 || UNKNOWN.equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+    
 }

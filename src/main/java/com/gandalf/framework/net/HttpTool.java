@@ -72,6 +72,17 @@ public class HttpTool {
     
     /**
      * http get 方法
+     * 
+     * @param url
+     * @param headerMap	请求头
+     * @return 请求结果
+     */
+    public static String get(String url, Map<String, String> headerMap) {
+        return get(url, headerMap, DEFAULT_CHARSET);
+    }
+    
+    /**
+     * http get 方法
      * @param url	请求连接
      * @param headerMap	请求头
      * @param charset	字符编码

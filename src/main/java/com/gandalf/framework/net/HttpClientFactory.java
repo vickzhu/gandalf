@@ -10,6 +10,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
@@ -199,7 +200,8 @@ public class HttpClientFactory {
 				
 				SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStore, ksp.getPassword().toCharArray()).build();
 				String[] protocols = new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"};
-				SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,protocols,null,SSLConnectionSocketFactory.getDefaultHostnameVerifier());
+				HostnameVerifier hv = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+				SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, protocols, null, hv);
 				
 				RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder.<ConnectionSocketFactory>create();
 				registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());

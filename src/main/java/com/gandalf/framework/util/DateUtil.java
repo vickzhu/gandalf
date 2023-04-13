@@ -13,6 +13,7 @@ import java.util.TimeZone;
  */
 public class DateUtil {
 	
+	private static SimpleDateFormat simpleSdf = new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static SimpleDateFormat fullSdfIso8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	private static SimpleDateFormat fullSdfIso8601Fractional = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -36,6 +37,19 @@ public class DateUtil {
         } catch (ParseException e) {
             return null;
         }
+    }
+    
+    /**
+     * 格式：yyyy-MM-dd
+     * @param date
+     * @return
+     */
+    public static Date simpleParse(String date) {
+    	try {
+            return simpleSdf.parse(date);
+        } catch (ParseException e) {
+            return null;
+        } 
     }
     
     /**
@@ -64,6 +78,13 @@ public class DateUtil {
         }
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         return sdf.format(date);
+    }
+    
+    public static String simpleFormat(Date date) {
+        if (date == null) {
+            return StringUtil.EMPTY;
+        }
+        return simpleSdf.format(date);
     }
     
     /**
