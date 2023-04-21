@@ -78,6 +78,36 @@ public class IPUtils {
 		
 		return str.replaceFirst("(^|:)(0+(:|$)){2,8}", "::");
 	}
+	
+	private static final long ip127_0_0_1 = 2130706433;
+	private static final long ip10_0_0_0 = 167772160;
+	private static final long ip10_255_255_255 = 184549375;
+	private static final long ip172_16_0_0 = 2886729728l;
+	private static final long ip172_31_255_255 = 2887778303l;
+	private static final long ip192_168_0_0 = 3232235520l;
+	private static final long ip192_168_255_255 = 3232301055l;
+	
+	/**
+	 * 是否为私有IP/内网IP
+	 * @param ip
+	 * @return
+	 */
+	public static boolean isPrivate(String ip) {
+		long ipl = ip2Long(ip);
+		if(ipl == ip127_0_0_1) {
+			return true;
+		}
+		if(ipl >= ip192_168_0_0 && ipl <= ip192_168_255_255) {
+			return true;
+		}
+		if(ipl >= ip10_0_0_0 && ipl <= ip10_255_255_255) {
+			return true;
+		}
+		if(ipl >= ip172_16_0_0 && ipl <= ip172_31_255_255) {
+			return true;
+		}
+		return false;
+	}
 
 
 	static public void main(String[] args) {
