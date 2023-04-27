@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -302,12 +304,72 @@ public class HttpTool {
     }
     
     public static String postJson(String url, Map<String, String> headerMap, String bodyJson) {
-    	return postJson(url, headerMap, bodyJson, null, Charset.forName("UTF-8"));
+    	return postJson(url, headerMap, bodyJson, null, DEFAULT_CHARSET);
     }
     
     public static String postJson(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset) {
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpPost post = new HttpPost(url);
+    	if(cookieMap != null){
+    		String cookieStr = toCookieStr(cookieMap);
+    		post.setHeader(new BasicHeader("Cookie", cookieStr));
+    	}
+    	if(headerMap == null) {
+    		headerMap = new HashMap<String, String>();
+    	}
+    	headerMap.put("Content-Type", "text/plain;charset=UTF-8");
+		headerMap.put("Accept-Encoding", "gzip, deflate, br");
+        if(headerMap != null) {
+        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+        		post.addHeader(entry.getKey(), entry.getValue());
+        	}
+        }
+        if (StringUtil.isNotBlank(bodyJson)) {
+            StringEntity entity = new StringEntity(bodyJson, charset);
+            post.setEntity(entity);
+        }
+        try {
+            HttpResponse response = httpClient.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("Get error status:" + statusCode + ", Url:" + url);
+            	System.out.println("Get error status:" + statusCode + ", Url:" + url);
+            	return null;
+            }
+            Header header = response.getLastHeader("Content-Encoding");
+            if(header != null && "br".equals(header.getValue())) {
+            	return extractBrotliContent(response.getEntity().getContent());
+            } else {
+            	return EntityUtils.toString(response.getEntity(), charset);
+            }
+        } catch (ClientProtocolException e) {// 协议错误
+            logger.error("Post [" + url + "] failure!", e);
+            e.printStackTrace();
+        } catch (IOException e) {// 网络异常
+            logger.error("Post [" + url + "] failure!", e);
+            e.printStackTrace();
+        } finally {
+            post.releaseConnection();
+        }
+        return null;
+    }
+    
+    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, HttpHost proxy) {
+    	return postJsonWithProxy(url, headerMap, bodyJson, null, DEFAULT_CHARSET, proxy);
+    }
+    
+    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset, HttpHost proxy) {
+    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+    	HttpPost post = new HttpPost(url);
+    	if(proxy != null) {
+	    	RequestConfig requestConfig = RequestConfig.custom()
+	                .setProxy(proxy)
+	                .setConnectTimeout(5000)
+	                .setSocketTimeout(5000)
+	                .setConnectionRequestTimeout(3000)
+	                .build();
+	    	post.setConfig(requestConfig);
+    	}
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
     		post.setHeader(new BasicHeader("Cookie", cookieStr));
