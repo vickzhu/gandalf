@@ -28,25 +28,11 @@ public class HttpToolTest {
 //        String result = HttpTool.postFile(url, null, fileMap, Charset.forName(CharsetConstant.UTF_8));
 //        System.out.println(result);
     	
-    	blackhawk();
-    	
 //    	String result = HttpTool.get("https://www.giftcardcat.com", null, Charset.forName("UTF-8"));
 //    	System.out.println(result);
     }
-    
-    public static void blackhawk() {
-    	String type = "PKCS12";
-    	String filePath = "D:\\Reward-Fenton-RebatesMe-API-Production.p12";
-    	String pwd = "4H6LMBWFGC3PN03TT6V2BZVA8R";
-    	String url = "https://apipp.blackhawknetwork.com/rewardsOrderProcessing/v1/orderInfo/byKeys?orderNumber=" + 331355728;
-    	Map<String, String> headerMap = new HashMap<String, String>();
-    	headerMap.put("merchantId", "60300003779");
-    	headerMap.put("requestId", "1");
-    	KeyStoreProp ksp = new KeyStoreProp(type, filePath, pwd);
-    	String result = HttpTool.getWithSsl(url, headerMap, ksp);
-    	System.out.println(result);
-    }
-    
+
+  
     /**
      * 异步POST
      */
