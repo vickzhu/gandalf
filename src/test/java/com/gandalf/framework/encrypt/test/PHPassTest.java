@@ -5,9 +5,10 @@ import com.gandalf.framework.encrypt.PHPass;
 public class PHPassTest {
 
 	public static void main(String[] args) {
-		String password = PHPass.createHash("I love you");
+		String source = "HELLO WORLD";
+		String password = PHPass.createHash(source);
 		System.out.println(password);
-		System.out.println(PHPass.isMatch("I love you", "$S$DBYbNpplXNNLF/9CVBZXLI4dRr8e5G4o4IGEU8udDFD4Cez1cVFD"));
+		System.out.println(PHPass.isMatch(source, password));
 	}
 
 }

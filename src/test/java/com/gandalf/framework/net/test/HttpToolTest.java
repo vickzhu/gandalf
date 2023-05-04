@@ -20,16 +20,7 @@ import com.gandalf.framework.net.KeyStoreProp;
 public class HttpToolTest {
 
     public static void main(String[] args) {
-//        String url = "http://localhost:8080/aimipay-merchant-web/bat/upload";
-//        Map<String, FileBody> fileMap = new HashMap<String, FileBody>();
-//        File file = new File("D:\\bat_trans_template.xls");
-//        FileBody body = new FileBody(file, "application/vnd.ms-excel", CharsetConstant.GBK);
-//        fileMap.put("batFile", body);
-//        String result = HttpTool.postFile(url, null, fileMap, Charset.forName(CharsetConstant.UTF_8));
-//        System.out.println(result);
-    	
-//    	String result = HttpTool.get("https://www.giftcardcat.com", null, Charset.forName("UTF-8"));
-//    	System.out.println(result);
+    	asyncPost();
     }
 
   
@@ -44,4 +35,5 @@ public class HttpToolTest {
 		String result = HttpTool.post(url, headerMap, paramMap, Charset.forName("utf-8"));
 		System.out.println(result);		
     }
+    
 }
