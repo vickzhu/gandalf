@@ -5,7 +5,8 @@ import com.gandalf.framework.encrypt.PHPass;
 public class PHPassTest {
 
 	public static void main(String[] args) {
-		String password = PHPass.createHash("admin");
+		String password = PHPass.createHash("www.likamao.com");
+		System.out.println(password);
 		System.out.println(PHPass.isMatch("admin", "$S$DPA77EJ8.5ixi.B6lLitwCeOksSNuQrvsTmE368T1KYkQ0A919d0"));
 	}
 

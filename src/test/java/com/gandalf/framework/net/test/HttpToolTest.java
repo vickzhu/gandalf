@@ -5,15 +5,12 @@
  */
 package com.gandalf.framework.net.test;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.entity.mime.content.FileBody;
-
-import com.gandalf.framework.constant.CharsetConstant;
 import com.gandalf.framework.net.HttpTool;
+import com.gandalf.framework.net.KeyStoreProp;
 
 /**
  * 类HttpToolTest.java的实现描述：http 测试
@@ -23,13 +20,31 @@ import com.gandalf.framework.net.HttpTool;
 public class HttpToolTest {
 
     public static void main(String[] args) {
-        String url = "http://localhost:8080/aimipay-merchant-web/bat/upload";
-        Map<String, FileBody> fileMap = new HashMap<String, FileBody>();
-        File file = new File("D:\\bat_trans_template.xls");
-        FileBody body = new FileBody(file, "application/vnd.ms-excel", CharsetConstant.GBK);
-        fileMap.put("batFile", body);
-        String result = HttpTool.postFile(url, null, fileMap, Charset.forName(CharsetConstant.UTF_8));
-        System.out.println(result);
+//        String url = "http://localhost:8080/aimipay-merchant-web/bat/upload";
+//        Map<String, FileBody> fileMap = new HashMap<String, FileBody>();
+//        File file = new File("D:\\bat_trans_template.xls");
+//        FileBody body = new FileBody(file, "application/vnd.ms-excel", CharsetConstant.GBK);
+//        fileMap.put("batFile", body);
+//        String result = HttpTool.postFile(url, null, fileMap, Charset.forName(CharsetConstant.UTF_8));
+//        System.out.println(result);
+    	
+    	blackhawk();
+    	
+//    	String result = HttpTool.get("https://www.giftcardcat.com", null, Charset.forName("UTF-8"));
+//    	System.out.println(result);
+    }
+    
+    public static void blackhawk() {
+    	String type = "PKCS12";
+    	String filePath = "D:\\Reward-Fenton-RebatesMe-API-Production.p12";
+    	String pwd = "4H6LMBWFGC3PN03TT6V2BZVA8R";
+    	String url = "https://apipp.blackhawknetwork.com/rewardsOrderProcessing/v1/orderInfo/byKeys?orderNumber=" + 331355728;
+    	Map<String, String> headerMap = new HashMap<String, String>();
+    	headerMap.put("merchantId", "60300003779");
+    	headerMap.put("requestId", "1");
+    	KeyStoreProp ksp = new KeyStoreProp(type, filePath, pwd);
+    	String result = HttpTool.getWithSsl(url, headerMap, ksp);
+    	System.out.println(result);
     }
     
     /**

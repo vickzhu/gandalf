@@ -18,9 +18,9 @@ import com.gandalf.framework.util.CaptchaUtil;
 public class CaptchaUtilTest {
 
     public static void main(String[] args) throws IOException {
-        File dir = new File("E:/verifies");
+        File dir = new File("D:/verifies");
         int w = 110, h = 50;
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             File file = new File(dir, i + ".jpg");
             String code = CaptchaUtil.outputVerifyImage(w, h, file, 4);
             System.out.println(code);
