@@ -115,7 +115,7 @@ public class CaptchaUtil {
      */
     public static void outputImage(int w, int h, OutputStream os, String code) throws IOException {
         int fontSize = h * 5 / 6;
-        BufferedImage image = new BufferedImage(w+5, h+5, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(w + 5, h + 5, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g2 = image.createGraphics();
         // 消除锯齿边缘
@@ -123,9 +123,9 @@ public class CaptchaUtil {
 
         Color c = getRandColor(150, 250);
         g2.setColor(c);// 设置背景色
-        g2.fillRect(0, 2, w+60, h+50);
+        g2.fillRect(0, 2, w + 60, h + 50);
         g2.setColor(c);// 设置边框色
-        g2.fillRect(0, 0, w+60, h);
+        g2.fillRect(0, 0, w + 60, h);
 
         Color fontColor = Color.BLACK;
 
@@ -148,20 +148,26 @@ public class CaptchaUtil {
     private static void draw(Graphics2D g2, String code, int w, int h, int fontSize) {
         char[] chars = code.toCharArray();
         int verifySize = code.length();
+        int cellW = w / verifySize;// 单元格宽度
+        int endY = h / 2 + fontSize / 2;
+        int minLeft = 5;
+        int maxRight = w - fontSize/2;
+        System.out.println("fontSize:" + fontSize + ", width:" + w);
         for (int i = 0; i < verifySize; i++) {
             AffineTransform affine = new AffineTransform();
-            affine.setToRotation(Math.PI / 4 * random.nextDouble() * (random.nextBoolean() ? 1 : -1), (w / verifySize)
-                                                                                                      * i + fontSize
-                                                                                                      / 2, h / 2);
+            double theta = Math.PI / 3 * random.nextDouble() * (random.nextBoolean() ? 1 : -1);
+            affine.setToRotation(theta, cellW * i + fontSize/ 2, h / 2);
             g2.setTransform(affine);
-            int cellW = w / verifySize;// 单元格宽度
             int maxOffset = cellW - fontSize / 2 + cellW * 3 / 10;
             int offset = random.nextInt(maxOffset);
-            int endX = (w / verifySize) * i + offset;
-            if (endX + fontSize + 5 > w) {
-                endX = (w / verifySize) * i;
+            int endX = cellW * i + offset;
+            System.out.println("EndX:" + endX);
+            if(endX < minLeft) {
+            	endX = cellW - fontSize/2;
+            } else if (endX > maxRight) {
+                endX = cellW * i;
             }
-            g2.drawChars(chars, i, 1, endX, h / 2 + fontSize / 2);
+            g2.drawChars(chars, i, 1, endX, endY);
         }
     }
 
@@ -192,7 +198,7 @@ public class CaptchaUtil {
      * @param fontColor
      */
     private static void drawline(Graphics2D g2, int w, int h, Color fontColor) {
-        g2.setStroke(new BasicStroke(h / 18));
+        g2.setStroke(new BasicStroke(h / 16));
         g2.setColor(fontColor);// 设置线条的颜色
         for (int i = 0; i < 2; i++) {
             int gx = random.nextInt(w / 2);

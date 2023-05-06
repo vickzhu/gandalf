@@ -5,10 +5,12 @@
  */
 package com.gandalf.framework.util.test;
 
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 
-import com.gandalf.framework.util.CaptchaUtil;
+import com.gandalf.framework.util.CaptchaUtil2;
 
 /**
  * 类CaptchaUtilTest.java的实现描述：验证码测试类
@@ -19,12 +21,16 @@ public class CaptchaUtilTest {
 
     public static void main(String[] args) throws IOException {
         File dir = new File("D:/verifies");
-        int w = 110, h = 50;
+        int w = 100, h = 40;
         for (int i = 0; i < 50; i++) {
             File file = new File(dir, i + ".jpg");
-            String code = CaptchaUtil.outputVerifyImage(w, h, file, 4);
+            String code = CaptchaUtil2.outputVerifyImage(w, h, file, 4);
             System.out.println(code);
         }
+//        Font[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+//        for (Font font : fonts) {
+//			System.out.println(font.getName());
+//		}
         System.out.println("完成");
 
     }
