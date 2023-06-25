@@ -48,6 +48,15 @@ public class CookieUtil {
         cookie.setPath(SymbolConstant.SLASH);
         response.addCookie(cookie);
     }
+    
+    public static void addCookie(HttpServletResponse response, String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(maxAge);
+        cookie.setPath(SymbolConstant.SLASH);
+        response.addCookie(cookie);
+    }
+    
+    
 
     /**
      * 将cookie加密保存

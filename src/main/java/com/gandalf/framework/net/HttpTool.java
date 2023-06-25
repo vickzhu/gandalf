@@ -146,7 +146,7 @@ public class HttpTool {
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpStatus.SC_OK) {
             	boolean gzip = isGzip(response);
-            	return EntityUtils.toString(response.getEntity(), Charset.forName(CharsetConstant.UTF_8), gzip);
+            	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, gzip);
             } else {
             	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
             }

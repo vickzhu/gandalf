@@ -14,19 +14,19 @@ public enum EnableEnum {
 
 	Y(1, "是"), N(0, "否");
 
-	private int enable;
+	private int code;
 	private String desc;
 
-	private EnableEnum(int enable, String desc) {
-		this.enable = enable;
+	private EnableEnum(int code, String desc) {
+		this.code = code;
 		this.desc = desc;
 	}
 
 	/**
 	 * @return the enable
 	 */
-	public int getEnable() {
-		return enable;
+	public int getCode() {
+		return code;
 	}
 
 	/**
@@ -36,13 +36,13 @@ public enum EnableEnum {
 		return desc;
 	}
 
-	public static EnableEnum getEnable(int enable) {
+	public static EnableEnum getEnable(int code) {
 		for (EnableEnum enableEnum : EnableEnum.values()) {
-			if (enableEnum.getEnable() == enable) {
+			if (enableEnum.getCode() == code) {
 				return enableEnum;
 			}
 		}
 		return null;
 	}
-	
+
 }

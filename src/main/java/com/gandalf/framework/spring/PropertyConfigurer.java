@@ -3,6 +3,7 @@ package com.gandalf.framework.spring;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -31,6 +32,10 @@ public class PropertyConfigurer extends PropertyPlaceholderConfigurer {
 
     public static String getProperty(String name) {
         return ctxPropertiesMap.get(name);
+    }
+    
+    public static Set<String> getPropertyName() {
+    	return ctxPropertiesMap.keySet();
     }
 
 }
