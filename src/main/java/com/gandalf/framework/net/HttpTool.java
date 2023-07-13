@@ -20,8 +20,9 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
@@ -132,10 +133,8 @@ public class HttpTool {
         	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
-            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Access [" + url + "] failure!", e);
-            e.printStackTrace();
         } finally {
             get.releaseConnection();
         }
@@ -172,10 +171,8 @@ public class HttpTool {
         	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
-            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Access [" + url + "] failure!", e);
-            e.printStackTrace();
         } finally {
             get.releaseConnection();
         }
@@ -287,7 +284,7 @@ public class HttpTool {
                                   Charset charset) {
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
         HttpPost post = new HttpPost(url);
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
         if (fileMap != null) {
             for (Map.Entry<String, FileBody> entry : fileMap.entrySet()) {
                 entity.addPart(entry.getKey(), entry.getValue());
@@ -298,14 +295,14 @@ public class HttpTool {
                 for (Map.Entry<String, String> entry : paramMap.entrySet()) {
                     String name = URLEncoder.encode(entry.getKey(), charset.name());
                     String value = entry.getValue();
-                    entity.addPart(name, new StringBody(value, charset));
+                    entity.addPart(name, new StringBody(value, ContentType.TEXT_PLAIN));
                 }
             } catch (UnsupportedEncodingException e) {
                 logger.error("Encode params failure!", e);
                 return null;
             }
         }
-        post.setEntity(entity);
+        post.setEntity(entity.build());
         try {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
@@ -373,10 +370,8 @@ public class HttpTool {
         	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Post [" + url + "] failure!", e);
-            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Post [" + url + "] failure!", e);
-            e.printStackTrace();
         } finally {
             post.releaseConnection();
         }
@@ -436,10 +431,8 @@ public class HttpTool {
         	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Post [" + url + "] failure!", e);
-            e.printStackTrace();
         } catch (IOException e) {// 网络异常
             logger.error("Post [" + url + "] failure!", e);
-            e.printStackTrace();
         } finally {
             post.releaseConnection();
         }
