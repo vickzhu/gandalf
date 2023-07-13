@@ -1,9 +1,6 @@
 package com.gandalf.framework.net;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -29,7 +26,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.brotli.dec.BrotliInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +42,14 @@ public class HttpTool {
 
     private static Charset      DEFAULT_CHARSET = Charset.forName(CharsetConstant.UTF_8);
     private static final Logger logger          = LoggerFactory.getLogger(HttpTool.class);
+    
+    private static final String USER_AGENT_KEY = "User-Agent";
+    private static final String ACCEPT_ENCODING_KEY = "Accept-Encoding";
+    private static final String CONTENT_ENCODING_KEY = "Content-Encoding";
+    private static final String COOKIE_KEY = "cookie";
+    
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
+    private static final String ACCEPT_ENCODING = "gzip, deflate, sdch";
     
     public static void main(String[] args) {
     	String result = get("https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20221121.json");
@@ -99,25 +103,33 @@ public class HttpTool {
     	HttpGet get = new HttpGet(url);
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
-    		get.setHeader(new BasicHeader("Cookie", cookieStr));
+    		get.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
     	}
     	if(headerMap == null){
     		headerMap = new HashMap<String, String>();
     	}
-    	headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch");
+    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
+    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
+    	}
+    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
+    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
+    	}
     	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
     		get.addHeader(entry.getKey(), entry.getValue());
     	}
         try {
             HttpResponse response = httpClient.execute(get);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_OK) {
-            	boolean gzip = isGzip(response);
-            	return EntityUtils.toString(response.getEntity(), charset, gzip);
-            } else {
-            	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("[" + url + "] return status code [" + statusCode + "]");
+            	return null;
             }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
             e.printStackTrace();
@@ -136,20 +148,28 @@ public class HttpTool {
     	if(headerMap == null){
     		headerMap = new HashMap<String, String>();
     	}
-    	headerMap.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36");
-		headerMap.put("Accept-Encoding", "gzip, deflate, sdch");
+    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
+    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
+    	}
+    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
+    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
+    	}
     	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
     		get.addHeader(entry.getKey(), entry.getValue());
     	}
         try {
             HttpResponse response = httpClient.execute(get);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_OK) {
-            	boolean gzip = isGzip(response);
-            	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, gzip);
-            } else {
-            	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("[" + url + "] return status code [" + statusCode + "]");
+            	return null;
             }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
             e.printStackTrace();
@@ -161,19 +181,6 @@ public class HttpTool {
         }
         return null;
     }
-    
-    private static final String CONTENTENCODING = "Content-Encoding";
-    private static final String GZIP = "gzip";
-    
-    private static boolean isGzip(HttpResponse response){
-    	Header[] headerArr = response.getHeaders(CONTENTENCODING);
-    	for (Header header : headerArr) {
-    		if(header.getName().equals(CONTENTENCODING) && header.getValue().toLowerCase().indexOf(GZIP) > -1){
-    			return true;
-    		}
-	   }
-	   return false;
-   }
 
     /**
      * http post 方法
@@ -221,7 +228,16 @@ public class HttpTool {
     	HttpPost post = new HttpPost(url);
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
-    		post.setHeader(new BasicHeader("Cookie", cookieStr));
+    		post.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
+    	}
+    	if(headerMap == null){
+    		headerMap = new HashMap<String, String>();
+    	}
+    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
+    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
+    	}
+    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
+    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
     	}
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
@@ -238,11 +254,16 @@ public class HttpTool {
         try {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_OK) {
-                return EntityUtils.toString(response.getEntity(), charset);
-            } else {
-                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("[" + url + "] return status code [" + statusCode + "]");
+                return null;
             }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
         } catch (IOException e) {// 网络异常
@@ -288,11 +309,16 @@ public class HttpTool {
         try {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpStatus.SC_OK) {
-                return EntityUtils.toString(response.getEntity(), charset);
-            } else {
-                logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+            if (statusCode != HttpStatus.SC_OK) {
+            	logger.error("Access [" + url + "] failure!,status code [" + statusCode + "]");
+                return null;
             }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
         } catch (IOException e) {// 网络异常
@@ -312,13 +338,17 @@ public class HttpTool {
     	HttpPost post = new HttpPost(url);
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
-    		post.setHeader(new BasicHeader("Cookie", cookieStr));
+    		post.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
     	}
-    	if(headerMap == null) {
+    	if(headerMap == null){
     		headerMap = new HashMap<String, String>();
     	}
-    	headerMap.put("Content-Type", "text/plain;charset=UTF-8");
-		headerMap.put("Accept-Encoding", "gzip, deflate, br");
+    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
+    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
+    	}
+    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
+    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
+    	}
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
         		post.addHeader(entry.getKey(), entry.getValue());
@@ -332,16 +362,15 @@ public class HttpTool {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
-            	logger.error("Get error status:" + statusCode + ", Url:" + url);
-            	System.out.println("Get error status:" + statusCode + ", Url:" + url);
+            	logger.error("[" + url + "] return status code [" + statusCode + "]");
             	return null;
             }
-            Header header = response.getLastHeader("Content-Encoding");
-            if(header != null && "br".equals(header.getValue())) {
-            	return extractBrotliContent(response.getEntity().getContent());
-            } else {
-            	return EntityUtils.toString(response.getEntity(), charset);
-            }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Post [" + url + "] failure!", e);
             e.printStackTrace();
@@ -372,13 +401,17 @@ public class HttpTool {
     	}
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
-    		post.setHeader(new BasicHeader("Cookie", cookieStr));
+    		post.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
     	}
-    	if(headerMap == null) {
+    	if(headerMap == null){
     		headerMap = new HashMap<String, String>();
     	}
-    	headerMap.put("Content-Type", "text/plain;charset=UTF-8");
-		headerMap.put("Accept-Encoding", "gzip, deflate, br");
+    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
+    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
+    	}
+    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
+    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
+    	}
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
         		post.addHeader(entry.getKey(), entry.getValue());
@@ -392,16 +425,15 @@ public class HttpTool {
             HttpResponse response = httpClient.execute(post);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
-            	logger.error("Get error status:" + statusCode + ", Url:" + url);
-            	System.out.println("Get error status:" + statusCode + ", Url:" + url);
+            	logger.error("[" + url + "] return status code [" + statusCode + "]");
             	return null;
             }
-            Header header = response.getLastHeader("Content-Encoding");
-            if(header != null && "br".equals(header.getValue())) {
-            	return extractBrotliContent(response.getEntity().getContent());
-            } else {
-            	return EntityUtils.toString(response.getEntity(), charset);
-            }
+            String contentEncoding = null;
+        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+        	if(header.length > 0) {
+        		contentEncoding = header[0].getValue();
+        	}
+        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Post [" + url + "] failure!", e);
             e.printStackTrace();
@@ -412,39 +444,6 @@ public class HttpTool {
             post.releaseConnection();
         }
         return null;
-    }
-    
-    private static String extractBrotliContent(InputStream is) {
-    	StringBuilder result = new StringBuilder();
-    	BufferedReader reader = null;
-    	InputStreamReader isr = null;
-    	try {
-    		BrotliInputStream stream = new BrotliInputStream(is);
-    		isr = new InputStreamReader(stream);
-            reader = new BufferedReader(isr);
-            String str = null;
-            while ((str = reader.readLine()) != null) {
-                result.append(str);
-            }
-    	} catch(Exception e) {
-    		e.printStackTrace();
-    	} finally {
-    		if(reader != null) {
-    			try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-    		}
-    		if(isr != null) {
-    			try {
-					isr.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-    		}
-    	}
-        return result.toString();
     }
     
     /**

@@ -15,6 +15,9 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
+import org.brotli.dec.BrotliInputStream;
+
+import com.gandalf.framework.constant.ContentEncodingEnum;
 
 public final class EntityUtils {
 	
@@ -95,21 +98,8 @@ public final class EntityUtils {
         }
     }
     
-    /**
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
-     *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
-     */
     public static String toString(
-            final HttpEntity entity, final Charset defaultCharset, final boolean isGzip) throws IOException, ParseException {
+            final HttpEntity entity, final Charset defaultCharset, String contentEncoding) throws IOException, ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -117,8 +107,13 @@ public final class EntityUtils {
         if (instream == null) {
             return null;
         }
-        if(isGzip){
-        	instream = new GZIPInputStream(instream);  
+        ContentEncodingEnum encodingEnum = ContentEncodingEnum.getEnum(contentEncoding);
+        if(ContentEncodingEnum.gzip.equals(encodingEnum)) {
+        	instream = new GZIPInputStream(instream); 
+        } else if(ContentEncodingEnum.br.equals(encodingEnum)) {
+        	instream = new BrotliInputStream(instream);
+        } else {
+        	instream = entity.getContent();
         }
         try {
             if (entity.getContentLength() > Integer.MAX_VALUE) {
@@ -155,43 +150,5 @@ public final class EntityUtils {
             instream.close();
         }
     }
-
-    /**
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
-     *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
-     */
-    public static String toString(
-            final HttpEntity entity, final String defaultCharset, final boolean isGzip) throws IOException, ParseException {
-        return toString(entity, defaultCharset != null ? Charset.forName(defaultCharset) : null, isGzip);
-    }
-
-    /**
-     * Read the contents of an entity and return it as a String.
-     * The content is converted using the character set from the entity (if any),
-     * failing that, "ISO-8859-1" is used.
-     *
-     * @param entity
-     * @return String containing the content.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
-     */
-    public static String toString(final HttpEntity entity, final boolean isGzip)
-        throws IOException, ParseException {
-        return toString(entity, (Charset)null, isGzip);
-    }
     
-    public static String toString(final HttpEntity entity, final Charset defaultCharset)
-            throws IOException, ParseException {
-            return toString(entity, defaultCharset, false);
-        }
 }
