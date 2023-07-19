@@ -112,6 +112,8 @@ public class HttpClientFactory {
 		 */
 		private static final int CONN_MANAGER_TIMEOUT = 60000;
 		
+		private static String[] PROTOCOLS = new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"};
+		
 		private static Map<String, CloseableHttpClient> clientMap = new HashMap<String, CloseableHttpClient>();
 		
 		public synchronized static CloseableHttpClient getDefaultHttpClient() {
@@ -182,7 +184,9 @@ public class HttpClientFactory {
 
 					}
 				} }, new SecureRandom());
-				registryBuilder.register("https", new SSLConnectionSocketFactory(sslContext));
+				
+				HostnameVerifier hv = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+				registryBuilder.register("https", new MyConnectionSocketFactory(sslContext, PROTOCOLS, null, hv));
 				return registryBuilder.build();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -199,9 +203,8 @@ public class HttpClientFactory {
 				keyStore.load(is, ksp.getPassword().toCharArray());
 				
 				SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStore, ksp.getPassword().toCharArray()).build();
-				String[] protocols = new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"};
 				HostnameVerifier hv = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
-				SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, protocols, null, hv);
+				SSLConnectionSocketFactory sslConnectionSocketFactory = new MyConnectionSocketFactory(sslContext, PROTOCOLS, null, hv);
 				
 				RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder.<ConnectionSocketFactory>create();
 				registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());

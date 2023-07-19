@@ -2,6 +2,7 @@ package com.gandalf.framework.net;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -46,8 +48,10 @@ public class HttpTool {
     
     private static final String USER_AGENT_KEY = "User-Agent";
     private static final String ACCEPT_ENCODING_KEY = "Accept-Encoding";
+    private static final String CONTENT_TYPE_KEY = "Content-Type";
     private static final String CONTENT_ENCODING_KEY = "Content-Encoding";
     private static final String COOKIE_KEY = "cookie";
+    private static final String APPLICATION_JSON = "application/json";
     
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
     private static final String ACCEPT_ENCODING = "gzip, deflate, sdch";
@@ -331,68 +335,90 @@ public class HttpTool {
     }
     
     public static String postJson(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset) {
-    	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
-    	HttpPost post = new HttpPost(url);
-    	if(cookieMap != null){
-    		String cookieStr = toCookieStr(cookieMap);
-    		post.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
-    	}
-    	if(headerMap == null){
-    		headerMap = new HashMap<String, String>();
-    	}
-    	if(StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {    		
-    		headerMap.put(USER_AGENT_KEY, USER_AGENT);
-    	}
-    	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
-    		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
-    	}
-        if(headerMap != null) {
-        	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
-        		post.addHeader(entry.getKey(), entry.getValue());
-        	}
-        }
-        if (StringUtil.isNotBlank(bodyJson)) {
-            StringEntity entity = new StringEntity(bodyJson, charset);
-            post.setEntity(entity);
-        }
-        try {
-            HttpResponse response = httpClient.execute(post);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-            	logger.error("[" + url + "] return status code [" + statusCode + "]");
-            	return null;
-            }
-            String contentEncoding = null;
-        	Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
-        	if(header.length > 0) {
-        		contentEncoding = header[0].getValue();
-        	}
-        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
-        } catch (ClientProtocolException e) {// 协议错误
-            logger.error("Post [" + url + "] failure!", e);
-        } catch (IOException e) {// 网络异常
-            logger.error("Post [" + url + "] failure!", e);
-        } finally {
-            post.releaseConnection();
-        }
-        return null;
+        return postJson(url, headerMap, bodyJson, cookieMap, DEFAULT_CHARSET, null, null);
     }
     
+    /**
+     * Http Proxy
+     * <div>
+     * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param bodyJson
+     * @param proxy
+     * @return
+     */
     public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, HttpHost proxy) {
-    	return postJsonWithProxy(url, headerMap, bodyJson, null, DEFAULT_CHARSET, proxy);
+    	return postJsonWithProxy(url, headerMap, bodyJson, null, proxy);
     }
     
-    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset, HttpHost proxy) {
+    /**
+     * Http Proxy
+     * <div>
+     * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param bodyJson
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, HttpHost proxy) {
+    	
+	    RequestConfig requestConfig = RequestConfig.custom()
+	    		.setProxy(proxy)
+	    		.setConnectTimeout(5000)
+	    		.setSocketTimeout(5000)
+	    		.setConnectionRequestTimeout(3000)
+	    		.build();   
+    	
+        return postJson(url, headerMap, bodyJson, cookieMap, DEFAULT_CHARSET, requestConfig, null);
+    }
+    
+    /**
+     * Socks Proxy
+     * <div>
+     * InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param bodyJson
+     * @param address
+     * @return
+     */
+    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, InetSocketAddress proxy) {
+    	return postJsonWithProxy(url, headerMap, bodyJson, null, proxy);
+    }
+    
+    /**
+     * Socks Proxy
+     * <div>
+     * InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param bodyJson
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, InetSocketAddress proxy) {
+        HttpClientContext context = null;
+        if(proxy != null) {
+            context = HttpClientContext.create();
+            context.setAttribute("socks.address", proxy);
+        }
+        return postJson(url, headerMap, bodyJson, cookieMap, DEFAULT_CHARSET, null, context);
+    }
+    
+    
+    private static String postJson(String url, Map<String, String> headerMap, String bodyJson, Map<String,String> cookieMap, Charset charset, RequestConfig requestConfig, HttpClientContext context) {
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpPost post = new HttpPost(url);
-    	if(proxy != null) {
-	    	RequestConfig requestConfig = RequestConfig.custom()
-	                .setProxy(proxy)
-	                .setConnectTimeout(5000)
-	                .setSocketTimeout(5000)
-	                .setConnectionRequestTimeout(3000)
-	                .build();
-	    	post.setConfig(requestConfig);
+    	if(requestConfig != null) {
+    		post.setConfig(requestConfig);
     	}
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
@@ -407,6 +433,9 @@ public class HttpTool {
     	if(StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {    		
     		headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
     	}
+    	if(StringUtil.isBlank(headerMap.get(CONTENT_TYPE_KEY))) {
+    		headerMap.put(CONTENT_TYPE_KEY, APPLICATION_JSON);
+    	}
         if(headerMap != null) {
         	for (Map.Entry<String, String> entry : headerMap.entrySet()) {
         		post.addHeader(entry.getKey(), entry.getValue());
@@ -417,7 +446,10 @@ public class HttpTool {
             post.setEntity(entity);
         }
         try {
-            HttpResponse response = httpClient.execute(post);
+        	InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 1080);
+            context = HttpClientContext.create();
+            context.setAttribute("socks.address", socksaddr);
+            HttpResponse response = httpClient.execute(post, context);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
             	logger.error("[" + url + "] return status code [" + statusCode + "]");
