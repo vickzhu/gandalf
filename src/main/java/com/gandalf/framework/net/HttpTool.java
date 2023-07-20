@@ -104,8 +104,58 @@ public class HttpTool {
     }
     
     public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap, Charset charset) {
+        return get(url, headerMap, cookieMap, null, null);
+    }
+    
+    /**
+     * Http Proxy
+     * <div>
+     * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String getWithProxy(String url, Map<String, String> headerMap, Map<String,String> cookieMap, HttpHost proxy) {
+    	
+	    RequestConfig requestConfig = RequestConfig.custom()
+	    		.setProxy(proxy)
+	    		.setConnectTimeout(5000)
+	    		.setSocketTimeout(5000)
+	    		.setConnectionRequestTimeout(3000)
+	    		.build();   
+    	
+        return get(url, headerMap, cookieMap, requestConfig, null);
+    }
+    
+    /**
+     * Socks Proxy
+     * <div>
+     * InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String getWithProxy(String url, Map<String, String> headerMap, Map<String,String> cookieMap, InetSocketAddress proxy) {
+    	HttpClientContext context = null;
+        if(proxy != null) {
+            context = HttpClientContext.create();
+            context.setAttribute("socks.address", proxy);
+        }
+    	return get(url, headerMap, cookieMap, null, context);
+    }
+    
+    public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap, RequestConfig requestConfig, HttpClientContext context) {
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpGet get = new HttpGet(url);
+    	if(requestConfig != null) {
+    		get.setConfig(requestConfig);
+    	}
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
     		get.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
@@ -123,7 +173,7 @@ public class HttpTool {
     		get.addHeader(entry.getKey(), entry.getValue());
     	}
         try {
-            HttpResponse response = httpClient.execute(get);
+            HttpResponse response = httpClient.execute(get, context);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
             	logger.error("[" + url + "] return status code [" + statusCode + "]");
@@ -134,7 +184,7 @@ public class HttpTool {
         	if(header.length > 0) {
         		contentEncoding = header[0].getValue();
         	}
-        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
+        	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
         } catch (IOException e) {// 网络异常
@@ -225,8 +275,60 @@ public class HttpTool {
      * @return
      */
     public static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, Charset charset){
+    	return post(url, headerMap, paramMap, cookieMap, null, null);
+    }
+    
+    /**
+     * Http Proxy
+     * <div>
+     * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param paramMap
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String postWithProxy(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, HttpHost proxy) {
+    	
+	    RequestConfig requestConfig = RequestConfig.custom()
+	    		.setProxy(proxy)
+	    		.setConnectTimeout(5000)
+	    		.setSocketTimeout(5000)
+	    		.setConnectionRequestTimeout(3000)
+	    		.build();   
+    	
+        return post(url, headerMap, paramMap, cookieMap, requestConfig, null);
+    }
+    
+    /**
+     * Socks Proxy
+     * <div>
+     * InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", 1080);
+     * </div>
+     * @param url
+     * @param headerMap
+     * @param paramMap
+     * @param cookieMap
+     * @param proxy
+     * @return
+     */
+    public static String postWithProxy(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, InetSocketAddress proxy) {
+    	HttpClientContext context = null;
+        if(proxy != null) {
+            context = HttpClientContext.create();
+            context.setAttribute("socks.address", proxy);
+        }
+    	return post(url, headerMap, paramMap, cookieMap, null, context);
+    }
+    
+    private static String post(String url, Map<String, String> headerMap, Map<String, String> paramMap, Map<String,String> cookieMap, RequestConfig requestConfig, HttpClientContext context){
     	HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
     	HttpPost post = new HttpPost(url);
+    	if(requestConfig != null) {
+    		post.setConfig(requestConfig);
+    	}
     	if(cookieMap != null){
     		String cookieStr = toCookieStr(cookieMap);
     		post.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
@@ -250,10 +352,10 @@ public class HttpTool {
             for (Map.Entry<String, String> entry : paramMap.entrySet()) {
                 params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
             }
-            post.setEntity(new UrlEncodedFormEntity(params, charset));
+            post.setEntity(new UrlEncodedFormEntity(params, DEFAULT_CHARSET));
         }
         try {
-            HttpResponse response = httpClient.execute(post);
+            HttpResponse response = httpClient.execute(post, context);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
             	logger.error("[" + url + "] return status code [" + statusCode + "]");
@@ -264,7 +366,7 @@ public class HttpTool {
         	if(header.length > 0) {
         		contentEncoding = header[0].getValue();
         	}
-        	return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
+        	return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, contentEncoding);
         } catch (ClientProtocolException e) {// 协议错误
             logger.error("Access [" + url + "] failure!", e);
         } catch (IOException e) {// 网络异常
@@ -385,7 +487,7 @@ public class HttpTool {
      * @param url
      * @param headerMap
      * @param bodyJson
-     * @param address
+     * @param proxy
      * @return
      */
     public static String postJsonWithProxy(String url, Map<String, String> headerMap, String bodyJson, InetSocketAddress proxy) {
