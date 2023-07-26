@@ -108,6 +108,32 @@ public class HttpTool {
     }
     
     /**
+     * <pre>
+     * Http Proxy
+     * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
+     * </pre>
+     * @param url
+     * @param proxy
+     * @return
+     */
+    public static String getWithProxy(String url, HttpHost proxy) {
+    	return getWithProxy(url, null, null, proxy);
+    }
+    
+    /**
+     * <pre>
+     * Socks Proxy
+     * InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", 1080);
+     * </pre>
+     * @param url
+     * @param proxy
+     * @return
+     */
+    public static String getWithProxy(String url, InetSocketAddress proxy) {
+    	return getWithProxy(url, null, null, proxy);
+    }
+    
+    /**
      * Http Proxy
      * <div>
      * HttpHost proxy = new HttpHost("127.0.0.1", 1080);
