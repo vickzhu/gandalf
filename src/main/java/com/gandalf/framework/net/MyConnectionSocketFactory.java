@@ -17,23 +17,20 @@ public class MyConnectionSocketFactory extends SSLConnectionSocketFactory {
 		super(sslContext);
 	}
 
-	public MyConnectionSocketFactory(
-            final SSLContext sslContext,
-            final String[] supportedProtocols,
-            final String[] supportedCipherSuites,
-            final HostnameVerifier hostnameVerifier) {
+	public MyConnectionSocketFactory(final SSLContext sslContext, final String[] supportedProtocols,
+			final String[] supportedCipherSuites, final HostnameVerifier hostnameVerifier) {
 		super(sslContext, supportedProtocols, supportedCipherSuites, hostnameVerifier);
-    }
-	
+	}
+
 	@Override
-    public Socket createSocket(final HttpContext context) throws IOException {
+	public Socket createSocket(final HttpContext context) throws IOException {
 		Object socks = context.getAttribute("socks.address");
-		if(socks != null) {
+		if (socks != null) {
 			InetSocketAddress socksaddr = (InetSocketAddress) context.getAttribute("socks.address");
 			Proxy proxy = new Proxy(Proxy.Type.SOCKS, socksaddr);
 			return new Socket(proxy);
 		}
 		return super.createSocket(context);
-    }	
-	
+	}
+
 }
