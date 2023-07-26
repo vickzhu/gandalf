@@ -548,9 +548,6 @@ public class HttpTool {
             post.setEntity(entity);
         }
         try {
-        	InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 1080);
-            context = HttpClientContext.create();
-            context.setAttribute("socks.address", socksaddr);
             HttpResponse response = httpClient.execute(post, context);
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode != HttpStatus.SC_OK) {
