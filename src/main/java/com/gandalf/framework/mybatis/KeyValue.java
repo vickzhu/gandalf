@@ -1,7 +1,7 @@
 package com.gandalf.framework.mybatis;
 
 /**
- * 用户查询时返回键值对
+ * 返回键值对
  * @author gandalf
  *
  * @param <K>

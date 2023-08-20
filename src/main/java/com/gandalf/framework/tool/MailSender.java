@@ -128,7 +128,7 @@ public class MailSender {
 		String content = "This is content!";
 		String[] recipients = new String[] {""};
 		send(config, recipients, title, content);
-		System.out.println("The end。。。。。。");
+		System.out.println("Finished send qq email!");
 	}
 	
 	public static void sendOutlook() {
@@ -142,10 +142,10 @@ public class MailSender {
 		config.setSender("");
 		config.setStarttls(true);
 		String title = "This is title";
-		String content = "This is content!";
+		String content = "This is content!!!";
 		String[] recipients = new String[] {""};
 		send(config, recipients, title, content);
-		System.out.println("The end。。。。。。");
+		System.out.println("Finished send outlook email!");
 	}
 
 }

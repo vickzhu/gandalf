@@ -48,7 +48,7 @@ public class HostTool extends AbstractTool {
      * @param request
      * @return
      */
-    public Renderable getDomain(HttpServletRequest request) {
+    public Renderable getDomain() {
         StringBuffer sb = new StringBuffer();
         sb.append(request.getScheme());
         sb.append(SymbolConstant.COLON).append(SymbolConstant.DOUBLE_SLASH);

@@ -10,6 +10,7 @@ import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
@@ -47,7 +48,7 @@ public class HttpClientFactory {
 	public static CloseableHttpClient getDefaultHttpClient() {
 		return HttpClientHolder.getDefaultHttpClient();
 	}
-	
+
 	public static CloseableHttpClient getCustomHttpClient(KeyStoreProp ksp) {
 		return HttpClientHolder.getCustomHttpClient(ksp);
 	}
@@ -110,34 +111,36 @@ public class HttpClientFactory {
 		 * 连接池中 连接请求执行被阻塞的超时时间
 		 */
 		private static final int CONN_MANAGER_TIMEOUT = 60000;
-		
+
+		private static String[] PROTOCOLS = new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" };
+
 		private static Map<String, CloseableHttpClient> clientMap = new HashMap<String, CloseableHttpClient>();
-		
+
 		public synchronized static CloseableHttpClient getDefaultHttpClient() {
 			CloseableHttpClient client = clientMap.get("default");
-			if(client == null) {
+			if (client == null) {
 				client = getHttpClient();
 				clientMap.put("default", client);
 			}
 			return client;
 		}
-		
+
 		public synchronized static CloseableHttpClient getCustomHttpClient(KeyStoreProp ksp) {
 			CloseableHttpClient client = clientMap.get(ksp.getCertPath());
-			if(client == null) {
+			if (client == null) {
 				client = getHttpClient(ksp);
 				clientMap.put(ksp.getCertPath(), client);
 			}
 			return client;
 		}
-		
+
 		private static CloseableHttpClient getHttpClient() {
 			return getHttpClient(null);
 		}
-		
+
 		private static CloseableHttpClient getHttpClient(KeyStoreProp ksp) {
 			Registry<ConnectionSocketFactory> registry = null;
-			if(ksp != null) {
+			if (ksp != null) {
 				registry = getCustomRegistry(ksp);
 			} else {
 				registry = getDefaultRegistry();
@@ -160,13 +163,13 @@ public class HttpClientFactory {
 			httpClientBuilder.setDefaultRequestConfig(requestConfig);
 			return httpClientBuilder.build();
 		}
-		
-		private static Registry<ConnectionSocketFactory> getDefaultRegistry(){
+
+		private static Registry<ConnectionSocketFactory> getDefaultRegistry() {
 			RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
 					.<ConnectionSocketFactory>create();
 			registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());
 			try {
-				//忽略SSL证书验证，也就是接受所有证书，这种方式存在风险
+				// 忽略SSL证书验证，也就是接受所有证书，这种方式存在风险
 				SSLContext sslContext = SSLContext.getInstance("SSL");
 				sslContext.init(null, new TrustManager[] { new X509TrustManager() {
 					public X509Certificate[] getAcceptedIssuers() {
@@ -174,42 +177,47 @@ public class HttpClientFactory {
 					}
 
 					public void checkClientTrusted(X509Certificate[] certs, String authType) {
-					
+
 					}
 
 					public void checkServerTrusted(X509Certificate[] certs, String authType) {
 
 					}
 				} }, new SecureRandom());
-				registryBuilder.register("https", new SSLConnectionSocketFactory(sslContext));
+
+				HostnameVerifier hv = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+				registryBuilder.register("https", new MyConnectionSocketFactory(sslContext, PROTOCOLS, null, hv));
 				return registryBuilder.build();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return null;
 		}
-		
-		private static Registry<ConnectionSocketFactory> getCustomRegistry(KeyStoreProp ksp){
+
+		private static Registry<ConnectionSocketFactory> getCustomRegistry(KeyStoreProp ksp) {
 			InputStream is = null;
 			try {
-		    	File certFile = new File(ksp.getCertPath());
-		    	is = new FileInputStream(certFile);
-		    	KeyStore keyStore = KeyStore.getInstance(ksp.getType());//JCEKS、JKS、DKS、PKCS11、PKCS12等等
+				File certFile = new File(ksp.getCertPath());
+				is = new FileInputStream(certFile);
+				KeyStore keyStore = KeyStore.getInstance(ksp.getType());// JCEKS、JKS、DKS、PKCS11、PKCS12等等
 				keyStore.load(is, ksp.getPassword().toCharArray());
-				
-				SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStore, ksp.getPassword().toCharArray()).build();
-				String[] protocols = new String[]{"TLSv1", "TLSv1.1", "TLSv1.2"};
-				SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext,protocols,null,SSLConnectionSocketFactory.getDefaultHostnameVerifier());
-				
-				RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder.<ConnectionSocketFactory>create();
+
+				SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStore, ksp.getPassword().toCharArray())
+						.build();
+				HostnameVerifier hv = SSLConnectionSocketFactory.getDefaultHostnameVerifier();
+				SSLConnectionSocketFactory sslConnectionSocketFactory = new MyConnectionSocketFactory(sslContext,
+						PROTOCOLS, null, hv);
+
+				RegistryBuilder<ConnectionSocketFactory> registryBuilder = RegistryBuilder
+						.<ConnectionSocketFactory>create();
 				registryBuilder.register("http", PlainConnectionSocketFactory.getSocketFactory());
 				registryBuilder.register("https", sslConnectionSocketFactory);
-				
+
 				return registryBuilder.build();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				if(is != null) {
+				if (is != null) {
 					try {
 						is.close();
 					} catch (IOException e) {
@@ -217,7 +225,7 @@ public class HttpClientFactory {
 					}
 				}
 			}
-		    return null;
+			return null;
 		}
 	}
 }

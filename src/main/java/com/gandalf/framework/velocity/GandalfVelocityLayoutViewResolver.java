@@ -21,13 +21,12 @@ public class GandalfVelocityLayoutViewResolver extends VelocityViewResolver {
 
 	private String screenContentKey;
 
-
 	/**
 	 * Requires VelocityLayoutView.
 	 * @see VelocityLayoutView
 	 */
 	@Override
-	protected Class requiredViewClass() {
+	protected Class<?> requiredViewClass() {
 		return GandalfVelocityLayoutView.class;
 	}
 
@@ -74,7 +73,7 @@ public class GandalfVelocityLayoutViewResolver extends VelocityViewResolver {
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
 		GandalfVelocityLayoutView view = (GandalfVelocityLayoutView) super.buildView(viewName);
 		// Use not-null checks to preserve VelocityLayoutView's defaults.
-		view.setViewUri(viewName+getSuffix());
+		view.setViewUri(viewName + getSuffix());
 		if (this.layoutUrl != null) {
 			view.setLayoutUrl(this.layoutUrl);
 		}

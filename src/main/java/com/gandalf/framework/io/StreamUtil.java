@@ -25,6 +25,14 @@ public class StreamUtil {
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     /** 从输入流读取内容，写入到输出流中。 */
+    /**
+     * 从输入流中获取内容，并写入到输出流中
+     * @param in
+     * @param out
+     * @param closeIn	是否关闭输入流
+     * @param closeOut	是否关闭输出流
+     * @throws IOException
+     */
     public static void io(InputStream in, OutputStream out, boolean closeIn, boolean closeOut) throws IOException {
         int bufferSize = DEFAULT_BUFFER_SIZE;
         byte[] buffer = new byte[bufferSize];
@@ -53,7 +61,14 @@ public class StreamUtil {
         }
     }
 
-    /** 从输入流读取内容，写入到输出流中。 */
+    /**
+     * 从reader中获取内容并输出到out中
+     * @param in
+     * @param out
+     * @param closeIn	是否关闭reader
+     * @param closeOut	是否关闭out
+     * @throws IOException
+     */
     public static void io(Reader in, Writer out, boolean closeIn, boolean closeOut) throws IOException {
         int bufferSize = DEFAULT_BUFFER_SIZE >> 1;
         char[] buffer = new char[bufferSize];
@@ -82,18 +97,31 @@ public class StreamUtil {
         }
     }
 
-    /** 将指定输入流的所有文本全部读出到一个字符串中。 */
+    /**
+     * 读取输入流转换为字符串
+     * @param in	输入流
+     * @param charset	编码方式
+     * @param closeIn	是否关闭输入流
+     * @return	转换后的字符串
+     * @throws IOException
+     */
     public static String readText(InputStream in, String charset, boolean closeIn) throws IOException {
         Reader reader = charset == null ? new InputStreamReader(in) : new InputStreamReader(in, charset);
 
         return readText(reader, closeIn);
     }
 
-    /** 将指定<code>Reader</code>的所有文本全部读出到一个字符串中。 */
-    public static String readText(Reader in, boolean closeIn) throws IOException {
+    /**
+     * 读取Reader中的字符串
+     * @param reader	
+     * @param closeReader	是否关闭Reader
+     * @return
+     * @throws IOException
+     */
+    public static String readText(Reader reader, boolean closeReader) throws IOException {
         StringWriter out = new StringWriter();
 
-        io(in, out, closeIn, true);
+        io(reader, out, closeReader, true);
 
         return out.toString();
     }

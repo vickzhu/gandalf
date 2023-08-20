@@ -1,5 +1,6 @@
 package com.gandalf.framework.tool;
 
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.regex.Pattern;
 
@@ -44,14 +45,17 @@ public class MailTool {
 		if (attr == null) {
 			return (0);
 		}
+		System.out.println(attr.get().toString());
 		return (attr.size());
 	}
 	
 	public static void main(String[] args) {
-		String email = "melous@aurlee.net";
+		String email = "a@abc.rr.com";
 //		System.out.println(MailTool.isValid(email));
-		System.out.println(MailTool.isExist(email));
-		
+		System.out.println(isExist(email));
+//		System.out.println(isExist("011re@annebaby.xyz"));
+		System.out.println(new Date(1682526106777l));
+		System.out.println(new Date(1682438721788l));
 	}
 	
 }
