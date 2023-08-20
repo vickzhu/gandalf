@@ -80,7 +80,7 @@ class BaseCoder {
      * @param data the String to encode
      * @return encoded bytes
      */
-    protected static byte[] getBytesUtf8(String data) {
+    public static byte[] getBytesUtf8(String data) {
         return StringUtils.getBytesUtf8(data);
     }
 
