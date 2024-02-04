@@ -52,7 +52,7 @@ public class HttpTool {
 	private static final String CONTENT_ENCODING_KEY = "Content-Encoding";
 	private static final String COOKIE_KEY = "cookie";
 	private static final String APPLICATION_JSON = "application/json";
-	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
+	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 	private static final String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
 	/**
@@ -100,7 +100,7 @@ public class HttpTool {
 
 	public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap,
 			Charset charset) {
-		return get(url, headerMap, cookieMap, null, null);
+		return get(url, headerMap, cookieMap, null, null, charset);
 	}
 
 	/**
@@ -173,9 +173,14 @@ public class HttpTool {
 		}
 		return get(url, headerMap, cookieMap, null, context);
 	}
-
+	
 	public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap,
 			RequestConfig requestConfig, HttpClientContext context) {
+		return get(url, headerMap, cookieMap, requestConfig, context, DEFAULT_CHARSET);
+	}
+
+	public static String get(String url, Map<String, String> headerMap, Map<String, String> cookieMap,
+			RequestConfig requestConfig, HttpClientContext context, Charset charset) {
 		HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
 		HttpGet get = new HttpGet(url);
 		if (requestConfig != null) {
@@ -197,6 +202,9 @@ public class HttpTool {
 		for (Map.Entry<String, String> entry : headerMap.entrySet()) {
 			get.addHeader(entry.getKey(), entry.getValue());
 		}
+		if(charset == null) {
+			charset = DEFAULT_CHARSET;
+		}
 		try {
 			HttpResponse response = httpClient.execute(get, context);
 			int statusCode = response.getStatusLine().getStatusCode();
@@ -209,7 +217,7 @@ public class HttpTool {
 			if (header.length > 0) {
 				contentEncoding = header[0].getValue();
 			}
-			return EntityUtils.toString(response.getEntity(), DEFAULT_CHARSET, contentEncoding);
+			return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
 		} catch (ClientProtocolException e) {// 协议错误
 			logger.error("Access [" + url + "] failure!", e);
 		} catch (IOException e) {// 网络异常
