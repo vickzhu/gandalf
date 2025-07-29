@@ -3,8 +3,6 @@ package com.gandalf.framework.velocity.tool;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.velocity.runtime.Renderable;
 import org.apache.velocity.tools.Scope;
 import org.apache.velocity.tools.config.DefaultKey;

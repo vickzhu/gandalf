@@ -52,7 +52,7 @@ public class HttpTool {
 	private static final String CONTENT_ENCODING_KEY = "Content-Encoding";
 	private static final String COOKIE_KEY = "cookie";
 	private static final String APPLICATION_JSON = "application/json";
-	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";
 	private static final String ACCEPT_ENCODING = "gzip, deflate, sdch";
 
 	/**
@@ -222,6 +222,27 @@ public class HttpTool {
 			logger.error("Access [" + url + "] failure!", e);
 		} catch (IOException e) {// 网络异常
 			logger.error("Access [" + url + "] failure!", e);
+		} finally {
+			get.releaseConnection();
+		}
+		return null;
+	}
+	
+	public static byte[] getBytes(String url) {
+		HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+		HttpGet get = new HttpGet(url);
+		try {
+			HttpResponse response = httpClient.execute(get);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != HttpStatus.SC_OK) {
+				logger.error("[" + url + "] return status code [" + statusCode + "]");
+				return null;
+			}
+			return EntityUtils.toByteArray(response.getEntity());
+		} catch (ClientProtocolException e) {// 协议错误
+			e.printStackTrace();
+		} catch (IOException e) {// 网络异常
+			e.printStackTrace();
 		} finally {
 			get.releaseConnection();
 		}
@@ -409,6 +430,34 @@ public class HttpTool {
 			logger.error("Access [" + url + "] failure!", e);
 		} catch (IOException e) {// 网络异常
 			logger.error("Access [" + url + "] failure!", e);
+		} finally {
+			post.releaseConnection();
+		}
+		return null;
+	}
+	
+	public static byte[] postForByte(String url, Map<String, String> paramMap) {
+		HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+		HttpPost post = new HttpPost(url);
+		if (paramMap != null) {
+			List<NameValuePair> params = new ArrayList<NameValuePair>();
+			for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+				params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+			}
+			post.setEntity(new UrlEncodedFormEntity(params, DEFAULT_CHARSET));
+		}
+		try {
+			HttpResponse response = httpClient.execute(post);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != HttpStatus.SC_OK) {
+				System.out.println("[" + url + "] return status code [" + statusCode + "]");
+				return null;
+			}
+			return EntityUtils.toByteArray(response.getEntity());
+		} catch (ClientProtocolException e) {// 协议错误
+			e.printStackTrace();
+		} catch (IOException e) {// 网络异常
+			e.printStackTrace();
 		} finally {
 			post.releaseConnection();
 		}
@@ -608,6 +657,69 @@ public class HttpTool {
 			logger.error("Post [" + url + "] failure!", e);
 		} finally {
 			post.releaseConnection();
+		}
+		return null;
+	}
+	
+	public static String deleteWithJson(String url, Map<String, String> headerMap, String bodyJson) {
+		return deleteWithJson(url, bodyJson, headerMap, null, DEFAULT_CHARSET, null, null);
+	}
+	
+	public static String deleteWithJson(String url, Map<String, String> headerMap, Map<String, String> cookieMap, String bodyJson) {
+		return deleteWithJson(url, bodyJson, headerMap, cookieMap, DEFAULT_CHARSET, null, null);
+	}
+	
+	public static String deleteWithJson(String url, String bodyJson, Map<String, String> headerMap,
+			Map<String, String> cookieMap, Charset charset, RequestConfig requestConfig, HttpClientContext context) {
+		HttpClient httpClient = HttpClientFactory.getDefaultHttpClient();
+		HttpDeleteWithBody httpDelete = new HttpDeleteWithBody(url);
+		if (requestConfig != null) {
+			httpDelete.setConfig(requestConfig);
+		}
+		if (cookieMap != null) {
+			String cookieStr = toCookieStr(cookieMap);
+			httpDelete.setHeader(new BasicHeader(COOKIE_KEY, cookieStr));
+		}
+		if (headerMap == null) {
+			headerMap = new HashMap<String, String>();
+		}
+		if (StringUtil.isBlank(headerMap.get(USER_AGENT_KEY))) {
+			headerMap.put(USER_AGENT_KEY, USER_AGENT);
+		}
+		if (StringUtil.isBlank(headerMap.get(ACCEPT_ENCODING_KEY))) {
+			headerMap.put(ACCEPT_ENCODING_KEY, ACCEPT_ENCODING);
+		}
+		if (StringUtil.isBlank(headerMap.get(CONTENT_TYPE_KEY))) {
+			headerMap.put(CONTENT_TYPE_KEY, APPLICATION_JSON);
+		}
+		if (headerMap != null) {
+			for (Map.Entry<String, String> entry : headerMap.entrySet()) {
+				httpDelete.addHeader(entry.getKey(), entry.getValue());
+			}
+		}
+		if (StringUtil.isNotBlank(bodyJson)) {
+			StringEntity entity = new StringEntity(bodyJson, charset);
+			httpDelete.setEntity(entity);
+		}
+		try {
+			HttpResponse response = httpClient.execute(httpDelete, context);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != HttpStatus.SC_OK) {
+				logger.error("[" + url + "] return status code [" + statusCode + "]");
+				return null;
+			}
+			String contentEncoding = null;
+			Header[] header = response.getHeaders(CONTENT_ENCODING_KEY);
+			if (header.length > 0) {
+				contentEncoding = header[0].getValue();
+			}
+			return EntityUtils.toString(response.getEntity(), charset, contentEncoding);
+		} catch (ClientProtocolException e) {// 协议错误
+			logger.error("Post [" + url + "] failure!", e);
+		} catch (IOException e) {// 网络异常
+			logger.error("Post [" + url + "] failure!", e);
+		} finally {
+			httpDelete.releaseConnection();
 		}
 		return null;
 	}

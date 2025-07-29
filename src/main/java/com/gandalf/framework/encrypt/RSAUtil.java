@@ -1,15 +1,19 @@
 package com.gandalf.framework.encrypt;
 
+import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
@@ -183,6 +187,13 @@ public class RSAUtil extends BaseCoder {
         // return cipher.doFinal(data);
         return doEncryptFinal(cipher, data);
     }
+    
+    public static byte[] encryptByPublicKey(PublicKey publicKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+//        Cipher cipher = Cipher.getInstance(publicKey.getAlgorithm());
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(message.getBytes());
+    }
 
     /**
      * 加密<br>
@@ -278,6 +289,26 @@ public class RSAUtil extends BaseCoder {
         keyMap.put(PUBLIC_KEY, publicKey);
         keyMap.put(PRIVATE_KEY, privateKey);
         return keyMap;
+    }
+    
+    /**
+     * 通过模数和指数重建公钥
+     * 
+     * @param modulusHex
+     * @param exponentHex
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public static PublicKey publicKey(String modulusHex, String exponentHex) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    	// 将16进制字符串转换为BigInteger
+        BigInteger modulus = new BigInteger(modulusHex, 16);
+        BigInteger exponent = new BigInteger(exponentHex, 16);
+        
+        // 重建公钥
+        RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(keySpec);
     }
 
 }

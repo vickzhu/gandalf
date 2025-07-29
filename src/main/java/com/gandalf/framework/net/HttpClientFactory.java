@@ -20,6 +20,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -148,6 +149,7 @@ public class HttpClientFactory {
 
 			SocketConfig socketConfig = SocketConfig.custom().setSoTimeout(SOCKET_TIMEOUT).build();// 接收数据的等待超时时间
 			RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+			requestConfigBuilder.setCookieSpec(CookieSpecs.STANDARD);
 			requestConfigBuilder.setConnectTimeout(CONNECTION_TIMEOUT);// 连接超时时间
 			requestConfigBuilder.setConnectionRequestTimeout(CONN_MANAGER_TIMEOUT);//// 从池中获取连接超时时间
 			RequestConfig requestConfig = requestConfigBuilder.build();
